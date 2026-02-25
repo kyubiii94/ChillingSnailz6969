@@ -1,0 +1,159 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block extra_js %}
+<script src="{% static 'core/js/wallet.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-scan"></div>
+  <div class="hero-inner">
+    <div>
+      <p class="hero-label">LETTUCE ISLAND — ETHEREUM NETWORK</p>
+      <h1 class="hero-title">
+        <span class="t1">CHILLING</span>
+        <span class="t2" data-t="SNAILZ.">SNAILZ.</span>
+      </h1>
+      <p class="hero-sub">
+        <strong>6 969 Snailz uniques</strong> vivent sur Lettuce Island.
+        Rejoins une faction, bats-toi dans l'arene retro et fais evoluer ton NFT
+        pour gagner des <strong>$NAILZ tokens</strong>.
+      </p>
+      <div class="hero-actions">
+        <a href="#mint" class="btn-primary">MINT TON SNAILZ</a>
+        <a href="{% url 'nft:collection' %}" class="btn-outline">VOIR LA COLLECTION</a>
+      </div>
+      <div class="hero-kpis">
+        <div><span class="kpi-val">6 969</span><span class="kpi-lbl">TOTAL SUPPLY</span></div>
+        <div><span class="kpi-val">9%</span><span class="kpi-lbl">MAJOR SNAILZ</span></div>
+        <div><span class="kpi-val">0.05&#926;</span><span class="kpi-lbl">MINT PRICE</span></div>
+        <div><span class="kpi-val">4</span><span class="kpi-lbl">FACTIONS</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-img-wrap">
+        <div class="hero-img-ring"></div>
+        <div class="hero-img-ring-2"></div>
+        <img src="{% static 'core/img/img_ffbdcc05.png' %}" alt="Chilling Snailz Banner">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    {% for _ in "12" %}<span class="ticker-item">&#x1F40C; CHILLING SNAILZ<span class="ticker-sep"> &#9670; </span></span><span class="ticker-item">6 969 SNAILZ UNIQUES SUR ETH<span class="ticker-sep"> &#9670; </span></span><span class="ticker-item">4 FACTIONS — AQUA / MAGMA / WIZARD / CHILLING<span class="ticker-sep"> &#9670; </span></span><span class="ticker-item">GAMING PLATFORM — LETTUCE ISLAND<span class="ticker-sep"> &#9670; </span></span><span class="ticker-item">9% MAJOR SNAILZ<span class="ticker-sep"> &#9670; </span></span><span class="ticker-item">$NAILZ TOKEN A VENIR<span class="ticker-sep"> &#9670; </span></span><span class="ticker-item">JOUE. EVOLUE. GAGNE.<span class="ticker-sep"> &#9670; </span></span>{% endfor %}
+  </div>
+</div>
+
+<!-- FACTIONS -->
+<section id="factions" class="section">
+  <div class="container">
+    <div class="faction-intro">
+      <div class="reveal">
+        <p class="tag">LES FACTIONS</p>
+        <h2 class="section-title">Choisis ton<br><span style="color:var(--aqua)">Camp.</span></h2>
+        <p class="section-desc">
+          Lettuce Island est divisee en 4 factions rivales. Chaque Snailz appartient
+          a une faction determinee par ses traits. Ta faction definit ta strategie,
+          tes allies et ton role dans les guerres de clans.
+        </p>
+      </div>
+      <div class="reveal">
+        <img src="{% static 'core/img/img_502b7ae4.png' %}" alt="Lettuce Island" style="width:100%;border:1px solid var(--border);filter:drop-shadow(0 0 30px rgba(0,212,255,0.15))">
+      </div>
+    </div>
+    <div class="factions-grid">
+      {% include "core/_faction_card.html" with img="img_4a4f8e57.png" name_img="img_0acb2acb.png" name="Aqua Snailz" desc="Maitres des profondeurs, agiles et insaisissables. Les Aqua Snailz dominent les courses aquatiques et les missions furtives." tag="STRATEGIE · VITESSE" %}
+      {% include "core/_faction_card.html" with img="img_9bdccc9c.png" name_img="img_cefc19bd.png" name="Magma Snailz" desc="Forged in fire. Les Magma Snailz sont les plus redoutes au combat — leur puissance destructrice est inegalee sur Lettuce Island." tag="ATTAQUE · PUISSANCE" %}
+      {% include "core/_faction_card.html" with img="img_063ded05.png" name_img="img_9ab32984.png" name="Wizard Lizards" desc="Gardiens de la connaissance de Lettuce Island. Les Wizards Lizards manipulent la magie pour desorienter leurs ennemis." tag="MAGIE · CONTROLE" %}
+      {% include "core/_faction_card.html" with img="img_d68bdf6c.png" name_img="img_6f73c3d0.png" name="Chilling Snailz" desc="Fondateurs de Lettuce Island. Les Chilling Snailz maintiennent l'equilibre entre les factions et percoivent les royalties de la plateforme." tag="EQUILIBRE · ECONOMIE" %}
+    </div>
+  </div>
+</section>
+
+<!-- MINT -->
+<section id="mint" class="section">
+  <div class="container">
+    <div class="section-head center reveal">
+      <p class="tag">REJOINS LA COLLECTION</p>
+      <h2 class="section-title">Mint ton Snailz</h2>
+    </div>
+    <div class="mint-outer">
+      <div class="mint-box reveal">
+        <h2 class="mint-title">Secure ton NFT</h2>
+        <p class="mint-sub">Connecte ton wallet et mint ton Snailz unique. Chaque mint est aleatoire — tu pourrais recevoir un legendaire Major.</p>
+        <div class="mint-stats">
+          <div class="mint-stat"><span class="mint-stat-val">0.05<sup style="font-size:18px">&#926;</sup></span><span class="mint-stat-lbl">MINT PRICE</span></div>
+          <div class="mint-stat"><span class="mint-stat-val" id="mintedNum">1 598</span><span class="mint-stat-lbl">MINTES</span></div>
+          <div class="mint-stat"><span class="mint-stat-val">5 371</span><span class="mint-stat-lbl">RESTANTS</span></div>
+        </div>
+        <div class="mint-progress-wrap">
+          <div class="mint-progress-labels">
+            <span>PROGRESSION: 1 598 / 6 969</span><span>23%</span>
+          </div>
+          <div class="mint-bar-bg">
+            <div class="mint-bar-fill" id="mintBar" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="wallet-options" id="wOptions">
+          <button class="wallet-btn" onclick="doConnect('MetaMask')"><span class="wallet-logo">&#x1F98A;</span>METAMASK</button>
+          <button class="wallet-btn" onclick="doConnect('WalletConnect')"><span class="wallet-logo">&#x1F517;</span>WALLETCONNECT</button>
+          <button class="wallet-btn" onclick="doConnect('Coinbase')"><span class="wallet-logo">&#x1F535;</span>COINBASE WALLET</button>
+        </div>
+        <div class="wallet-connected" id="wConnected">
+          <div class="wc-row">
+            <span>&#x2705; <span class="wc-addr" id="wAddr">0x...</span></span>
+            <span>BALANCE: <span class="wc-bal" id="wBal">-- ETH</span></span>
+            <button class="btn-mint" onclick="doMint()">MINT &#x25B6;</button>
+          </div>
+          <div class="mint-status-msg" id="mintMsg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROMO -->
+<section id="promo" class="section" style="background:var(--deep)">
+  <div class="container">
+    <div class="section-head reveal">
+      <p class="tag">L'UNIVERS</p>
+      <h2 class="section-title">Lettuce Island<br><span style="color:var(--aqua)">en images</span></h2>
+    </div>
+    <div class="promo-grid reveal">
+      <div class="promo-card"><img src="{% static 'core/img/img_ffbdcc05.png' %}" alt="Chilling vs Magma"><div class="promo-overlay"></div></div>
+      <div class="promo-card"><img src="{% static 'core/img/img_d0f814f0.png' %}" alt="Lettuce Island Universe"><div class="promo-overlay"></div></div>
+      <div class="promo-card"><img src="{% static 'core/img/img_f6794dd5.png' %}" alt="Wizard vs Aqua"><div class="promo-overlay"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap" class="section" style="background:var(--void)">
+  <div class="container">
+    <div class="section-head center reveal">
+      <p class="tag">LE PLAN</p>
+      <h2 class="section-title">Roadmap</h2>
+      <p class="section-desc">Du mint jusqu'a un ecosysteme gaming complet sur Ethereum.</p>
+    </div>
+    <div class="rm-timeline reveal">
+      {% include "core/_roadmap.html" %}
+    </div>
+    <div class="rm-numbers reveal">
+      <div class="rm-kpi"><span class="rm-kpi-val" style="color:var(--aqua)">6 969</span><span class="rm-kpi-lbl">NFTs GENESIS</span></div>
+      <div class="rm-kpi-sep"></div>
+      <div class="rm-kpi"><span class="rm-kpi-val" style="color:var(--magma)">5+</span><span class="rm-kpi-lbl">JEUX PREVUS</span></div>
+      <div class="rm-kpi-sep"></div>
+      <div class="rm-kpi"><span class="rm-kpi-val" style="color:var(--wizard)">4</span><span class="rm-kpi-lbl">FACTIONS</span></div>
+      <div class="rm-kpi-sep"></div>
+      <div class="rm-kpi"><span class="rm-kpi-val" style="color:var(--chill)">1</span><span class="rm-kpi-lbl">TOKEN $NAILZ</span></div>
+    </div>
+  </div>
+</section>
+{% endblock %}

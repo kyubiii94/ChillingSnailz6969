@@ -1,0 +1,47 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Collection — CHILLING SNAILZ{% endblock %}
+
+{% block content %}
+<section id="collection" class="section" style="background:var(--void);padding-top:120px;min-height:100vh">
+  <div class="container">
+    <div class="section-head reveal">
+      <p class="tag">ERC-721 · ETHEREUM</p>
+      <h2 class="section-title">La Collection</h2>
+      <p class="section-desc">Chaque Snailz est un token unique — une combinaison aleatoire de traits avec son propre Rarity Score.</p>
+    </div>
+
+    <div class="collection-filters reveal">
+      <a href="?rarity=all" class="filter-btn {% if current_filter == 'all' %}active{% endif %}">ALL</a>
+      <a href="?rarity=common" class="filter-btn {% if current_filter == 'common' %}active{% endif %}">COMMON</a>
+      <a href="?rarity=rare" class="filter-btn {% if current_filter == 'rare' %}active{% endif %}">RARE</a>
+      <a href="?rarity=legendary" class="filter-btn {% if current_filter == 'legendary' %}active{% endif %}">LEGENDARY</a>
+    </div>
+
+    <div class="nft-grid" id="nftGrid">
+      {% for nft in snailz_list %}
+      <div class="nft-card {% if nft.is_major %}is-major{% endif %}">
+        <div class="nft-thumb">
+          {% if nft.image %}
+          <img src="{{ nft.image.url }}" alt="{{ nft }}" class="nft-real-img" loading="lazy">
+          {% endif %}
+          <span class="rarity-score-badge">{{ nft.get_rarity_display|upper }}</span>
+        </div>
+        <div class="nft-info">
+          <p class="nft-id">{{ nft }}</p>
+          <div class="nft-footer">
+            <div class="nft-price">0.05&#926;<small>FLOOR</small></div>
+            <button class="btn-sm">VIEW</button>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p style="color:var(--muted);font-family:var(--font-pixel);font-size:9px;text-align:center;grid-column:1/-1;padding:40px">
+        AUCUN SNAILZ TROUVE.
+      </p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

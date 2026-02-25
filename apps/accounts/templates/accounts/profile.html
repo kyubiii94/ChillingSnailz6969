@@ -1,0 +1,44 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Mon profil — CHILLING SNAILZ{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:120px;min-height:100vh">
+  <div class="container" style="max-width:700px">
+    <div class="section-head">
+      <p class="tag">MON COMPTE</p>
+      <h2 class="section-title">{{ user.email }}</h2>
+    </div>
+
+    <div class="mint-box" style="padding:40px;margin-bottom:24px">
+      <h3 style="font-family:var(--font-pixel);font-size:10px;color:var(--aqua);margin-bottom:16px">INFORMATIONS</h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:8px">
+        <strong style="color:var(--white)">Username:</strong> {{ user.username }}
+      </p>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:8px">
+        <strong style="color:var(--white)">Email:</strong> {{ user.email }}
+      </p>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:8px">
+        <strong style="color:var(--white)">Wallet:</strong> {{ user.wallet_address|default:"Non connecte" }}
+      </p>
+      <p style="color:var(--muted);font-size:13px">
+        <strong style="color:var(--white)">Consentement RGPD:</strong>
+        {% if user.gdpr_consent %}Accepte le {{ user.gdpr_consent_date|date:"d/m/Y" }}{% else %}Non{% endif %}
+      </p>
+    </div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <a href="{% url 'accounts:export-data' %}" class="btn-outline" style="font-size:8px">EXPORTER MES DONNEES (RGPD)</a>
+      <a href="{% url 'account_logout' %}" class="btn-outline" style="font-size:8px">DECONNEXION</a>
+      <form method="post" action="{% url 'accounts:delete-account' %}" style="display:inline"
+            onsubmit="return confirm('Es-tu sur de vouloir supprimer ton compte ? Cette action est irreversible.')">
+        {% csrf_token %}
+        <button type="submit" class="btn-outline" style="font-size:8px;color:var(--magma);border-color:rgba(255,69,0,0.3)">
+          SUPPRIMER MON COMPTE
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
