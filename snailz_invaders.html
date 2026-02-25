@@ -393,55 +393,131 @@ body::before {
 .touch-controls {
   display: none;
   width: 100%; max-width: 720px;
-  padding: 12px;
-  gap: 12px;
+  padding: 10px 16px;
   justify-content: space-between;
   align-items: center;
+  background: rgba(8,12,24,0.85);
+  border-top: 1px solid var(--border);
+  gap: 8px;
+  /* Reste visible même quand le canvas est grand */
+  flex-shrink: 0;
 }
 .touch-dpad {
-  display: flex; gap: 8px;
+  display: flex; gap: 8px; align-items: center;
+}
+.touch-action-group {
+  display: flex; gap: 10px; align-items: center;
 }
 .touch-btn {
-  width: 52px; height: 52px;
-  background: var(--surface);
-  border: 2px solid rgba(57,255,20,0.25);
+  width: 62px; height: 62px;
+  background: rgba(15,22,40,0.9);
+  border: 2px solid rgba(57,255,20,0.3);
   color: var(--chill);
-  font-size: 20px;
+  font-size: 24px;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   -webkit-user-select: none; user-select: none;
-  transition: all 0.1s;
+  touch-action: manipulation;
+  border-radius: 6px;
+  /* Feedback visuel immédiat */
+  transition: background 0.06s, border-color 0.06s, box-shadow 0.06s;
+  -webkit-tap-highlight-color: transparent;
 }
-.touch-btn:active {
+.touch-btn:active,
+.touch-btn.pressed {
   background: var(--chill-dim);
   border-color: var(--chill);
-  box-shadow: 0 0 16px rgba(57,255,20,0.3);
+  box-shadow: 0 0 18px rgba(57,255,20,0.35);
+  transform: scale(0.93);
 }
+/* Bouton FIRE */
 .touch-fire {
-  width: 72px; height: 72px;
+  width: 78px; height: 78px;
   border-radius: 50%;
-  background: rgba(255,69,0,0.15);
-  border: 2px solid rgba(255,69,0,0.4);
+  background: rgba(255,69,0,0.12);
+  border: 2px solid rgba(255,69,0,0.45);
   color: var(--magma);
-  font-family: var(--font-pixel); font-size: 8px;
+  font-family: var(--font-pixel); font-size: 8px; letter-spacing: 1px;
 }
-.touch-fire:active {
-  background: rgba(255,69,0,0.3);
+.touch-fire:active,
+.touch-fire.pressed {
+  background: rgba(255,69,0,0.28);
   border-color: var(--magma);
-  box-shadow: 0 0 20px rgba(255,69,0,0.4);
+  box-shadow: 0 0 22px rgba(255,69,0,0.45);
+}
+/* Bouton SPÉCIAL */
+.touch-special {
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  background: rgba(168,85,247,0.1);
+  border: 2px solid rgba(168,85,247,0.35);
+  color: var(--wizard);
+  font-size: 20px;
+}
+.touch-special:active,
+.touch-special.pressed {
+  background: var(--wizard-dim);
+  border-color: var(--wizard);
+  box-shadow: 0 0 18px rgba(168,85,247,0.4);
+}
+/* Bouton PAUSE */
+.touch-pause {
+  width: 46px; height: 46px;
+  border-radius: 4px;
+  border-color: rgba(255,255,255,0.12);
+  color: var(--muted);
+  font-size: 18px;
+}
+.touch-pause:active { border-color: var(--aqua); color: var(--aqua); }
+
+/* ===========================
+   RESPONSIVE MOBILE
+=========================== */
+@media (pointer: coarse) {
+  /* Empêche le scroll / zoom du navigateur sur le canvas */
+  #gameCanvas { touch-action: none; }
+  body { overscroll-behavior: none; }
 }
 
 @media (max-width: 768px) {
   .touch-controls { display: flex; }
   .controls-bar { display: none; }
-  #gameCanvas { max-width: 100%; height: auto !important; }
+  .game-wrapper { padding: 64px 8px 8px; gap: 8px; }
+  .hud { padding: 7px 12px; }
+
+  /* Nav compacte */
+  .game-nav { padding: 0 12px; }
+  .nav-title { font-size: 7px; letter-spacing: 1px; }
+  .back-btn { font-size: 6px; padding: 5px 8px; gap: 4px; }
+  .nav-hi-score { font-size: 6px; }
+  .nav-faction { font-size: 5px; padding: 3px 6px; }
 }
 
 @media (max-width: 480px) {
-  .hud { padding: 6px 10px; gap: 4px; }
+  .hud { padding: 5px 8px; gap: 0; }
   .hud-val { font-size: 9px; }
-  .hud-label { font-size: 5px; }
-  .faction-select { grid-template-columns: repeat(2,1fr); }
+  .hud-label { font-size: 5px; letter-spacing: 1px; }
+  .hud-block { padding: 0 4px; }
+
+  /* Overlay lisibles sur petit écran */
+  .overlay { padding: 20px 16px; gap: 14px; }
+  .overlay-title { font-size: clamp(22px, 7vw, 38px); }
+  .overlay-sub { font-size: 7px; letter-spacing: 1px; line-height: 1.8; }
+  .go-score { font-size: 40px; }
+  .go-stats { gap: 14px; flex-wrap: wrap; justify-content: center; }
+
+  /* Faction select en 2×2 */
+  .faction-select { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .faction-btn { padding: 12px 8px; font-size: 5px; }
+  .faction-btn .f-icon { font-size: 24px; }
+
+  /* Contrôles encore plus compacts */
+  .touch-btn { width: 56px; height: 56px; font-size: 22px; }
+  .touch-fire { width: 70px; height: 70px; font-size: 7px; }
+  .touch-special { width: 52px; height: 52px; font-size: 18px; }
+  .touch-pause { width: 40px; height: 40px; font-size: 15px; }
+
+  .nav-title { display: none; }
 }
 </style>
 </head>
@@ -455,7 +531,7 @@ body::before {
 <!-- Navigation -->
 <nav class="game-nav">
   <div class="nav-left">
-    <a href="chilling_snailz_site.html" class="back-btn">◄ RETOUR</a>
+    <a href="index.html" class="back-btn">◄ RETOUR</a>
     <span class="nav-title">SNAILZ INVADERS</span>
   </div>
   <div class="nav-right-info">
@@ -567,11 +643,18 @@ body::before {
 
   <!-- Mobile touch controls -->
   <div class="touch-controls" id="touchControls">
+    <!-- Gauche / Droite -->
     <div class="touch-dpad">
       <button class="touch-btn" id="btnLeft">◄</button>
       <button class="touch-btn" id="btnRight">►</button>
     </div>
-    <button class="touch-btn touch-fire" id="btnFire">FIRE</button>
+    <!-- Pause -->
+    <button class="touch-btn touch-pause" id="btnPause">⏸</button>
+    <!-- Spécial + Feu -->
+    <div class="touch-action-group">
+      <button class="touch-btn touch-special" id="btnSpecial">✦</button>
+      <button class="touch-btn touch-fire" id="btnFire">FIRE</button>
+    </div>
   </div>
 
 </div>
@@ -795,15 +878,37 @@ function setupTouch() {
   const btnL = document.getElementById('btnLeft');
   const btnR = document.getElementById('btnRight');
   const btnF = document.getElementById('btnFire');
+  const btnS = document.getElementById('btnSpecial');
+  const btnP = document.getElementById('btnPause');
 
-  function addTouchListeners(el, keyCode) {
-    el.addEventListener('touchstart', e => { e.preventDefault(); keys[keyCode] = true; }, { passive: false });
-    el.addEventListener('touchend', e => { e.preventDefault(); keys[keyCode] = false; }, { passive: false });
-    el.addEventListener('touchcancel', e => { keys[keyCode] = false; });
+  // Lie un bouton à un code clavier avec feedback visuel
+  function bindKey(el, keyCode) {
+    const press   = e => { e.preventDefault(); keys[keyCode] = true;  el.classList.add('pressed'); };
+    const release = e => { e.preventDefault(); keys[keyCode] = false; el.classList.remove('pressed'); };
+    el.addEventListener('touchstart',  press,   { passive: false });
+    el.addEventListener('touchend',    release, { passive: false });
+    el.addEventListener('touchcancel', release);
+    // Support souris (desktop debug)
+    el.addEventListener('mousedown', press);
+    el.addEventListener('mouseup',   release);
+    el.addEventListener('mouseleave',release);
   }
-  addTouchListeners(btnL, 'ArrowLeft');
-  addTouchListeners(btnR, 'ArrowRight');
-  addTouchListeners(btnF, 'Space');
+
+  bindKey(btnL, 'ArrowLeft');
+  bindKey(btnR, 'ArrowRight');
+  bindKey(btnF, 'Space');
+  bindKey(btnS, 'ShiftLeft');
+
+  // Pause : toggle entre pause et reprise
+  btnP.addEventListener('touchstart', e => {
+    e.preventDefault();
+    if      (G.state === 'playing') pauseGame();
+    else if (G.state === 'paused')  resumeGame();
+  }, { passive: false });
+  btnP.addEventListener('mousedown', () => {
+    if      (G.state === 'playing') pauseGame();
+    else if (G.state === 'paused')  resumeGame();
+  });
 }
 setupTouch();
 
@@ -1449,14 +1554,25 @@ function drawMenuBg() {
 // ── INIT ──
 document.getElementById('navHiScore').textContent = String(G.hiScore).padStart(5, '0');
 
-// Responsive canvas
-const _canvasFrame = document.getElementById('canvasFrame');
+// Responsive canvas — s'adapte à la largeur ET à la hauteur disponible
 function resizeCanvas() {
-  const maxW = Math.min(720, window.innerWidth - 40);
-  canvas.style.width = maxW + 'px';
-  canvas.style.height = (maxW * (520 / 720)) + 'px';
+  const isMobile   = window.innerWidth <= 768;
+  const sidePad    = isMobile ? 16 : 40;
+  const hudH       = 54;   // HUD bar
+  const ctrlH      = isMobile ? 86 : 0;  // touch controls
+  const navH       = 56;   // navbar
+  const gapH       = isMobile ? 16 : 32; // gaps
+
+  const maxByWidth  = Math.min(720, window.innerWidth  - sidePad * 2);
+  const maxByHeight = (window.innerHeight - navH - hudH - ctrlH - gapH) * (720 / 520);
+  const maxW        = Math.floor(Math.min(maxByWidth, maxByHeight));
+
+  canvas.style.width  = maxW + 'px';
+  canvas.style.height = Math.floor(maxW * (520 / 720)) + 'px';
 }
 window.addEventListener('resize', resizeCanvas);
+// Recalcule aussi après l'orientation change sur mobile
+window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 200));
 resizeCanvas();
 
 // Start ambient loop
