@@ -510,7 +510,7 @@ nav {
 /* ===========================
    COLLECTION SECTION
 =========================== */
-#collection { background: var(--void); }
+#collection { background: var(--void); position: relative; z-index: 9991; }
 
 .collection-filters {
   display: flex; gap: 8px; margin-bottom: 40px;
@@ -556,14 +556,6 @@ nav {
   animation: float 3s ease-in-out infinite;
 }
 .nft-card:hover .nft-thumb-inner { transform: scale(1.12); }
-
-/* Sweep effect */
-.nft-thumb::after {
-  content:''; position:absolute; top:-100%; left:0; right:0; height:40%;
-  background: linear-gradient(transparent, rgba(0,212,255,0.05), transparent);
-  transition: top 0.5s;
-}
-.nft-card:hover .nft-thumb::after { top:200%; }
 
 .nft-major-badge {
   position: absolute; top: 8px; right: 8px; z-index: 2;
