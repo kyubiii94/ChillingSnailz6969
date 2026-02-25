@@ -214,6 +214,47 @@ nav {
 .btn-wallet.connected::before { background: linear-gradient(135deg, var(--chill), #00a010); }
 .btn-wallet.connected .wallet-dot { background: var(--chill); box-shadow:0 0 6px var(--chill); animation:blink 1.5s infinite; }
 
+/* Hamburger button (masqué sur desktop) */
+.nav-hamburger {
+  display: none;
+  flex-direction: column; justify-content: center; align-items: center;
+  gap: 5px; width: 36px; height: 36px;
+  background: transparent; border: 1px solid var(--border);
+  cursor: pointer; padding: 0;
+}
+.nav-hamburger span {
+  display: block; width: 18px; height: 1px;
+  background: var(--white); transition: var(--transition);
+}
+.nav-hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* Mobile nav drawer */
+.mobile-nav {
+  display: none;
+  position: fixed; top: 60px; left: 0; right: 0; z-index: 999;
+  background: rgba(3,4,10,0.97);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+  flex-direction: column; padding: 16px 0;
+  transform: translateY(-8px); opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+}
+.mobile-nav.open {
+  opacity: 1; transform: translateY(0); pointer-events: auto;
+}
+.mobile-nav-link {
+  font-family: var(--font-pixel); font-size: 8px; letter-spacing: 2px;
+  color: var(--muted); text-decoration: none;
+  padding: 14px 24px; display: block;
+  border-bottom: 1px solid var(--border);
+  transition: var(--transition);
+}
+.mobile-nav-link:last-child { border-bottom: none; }
+.mobile-nav-link:hover, .mobile-nav-link:active { color: var(--aqua); background: rgba(0,212,255,0.04); }
+
 /* ===========================
    HERO
 =========================== */
@@ -951,13 +992,24 @@ footer {
 /* ===========================
    RESPONSIVE
 =========================== */
+
+/* ── Touch / pointer: coarse → désactive le curseur custom ── */
+@media (pointer: coarse) {
+  body { cursor: auto; }
+  #cursor, #cursor-follower { display: none; }
+  button, a { cursor: pointer; }
+}
+
+/* ── Tablette ≤ 960px ── */
 @media(max-width:960px){
   .hero-inner { grid-template-columns:1fr; }
   .hero-visual { order:-1; }
-  .hero-img-wrap { width: 300px; }
+  .hero-img-wrap { width: min(320px, 70vw); }
   .faction-intro { grid-template-columns:1fr; }
   .factions-grid { grid-template-columns:1fr 1fr; }
   .gaming-layout { grid-template-columns:1fr; }
+  .gaming-bento { grid-template-columns:1fr; }
+  .bento-console { grid-row: auto; }
   .roadmap-line { flex-direction:column; }
   .roadmap-connector { display:none; }
   .promo-grid { grid-template-columns:1fr; }
@@ -965,6 +1017,76 @@ footer {
   nav { padding:0 20px; }
   .nav-center { display:none; }
   .container { padding:0 20px; }
+  .section { padding: 80px 0; }
+  .hero-kpis { gap: 28px; flex-wrap: wrap; }
+  .mint-stats { gap: 32px; flex-wrap: wrap; }
+}
+
+/* ── Mobile ≤ 640px ── */
+@media(max-width:640px){
+  .section { padding: 56px 0; }
+  .container { padding: 0 16px; }
+  nav { padding: 0 16px; height: 60px; }
+  .mobile-nav { display: flex; }
+  .nav-hamburger { display: flex; }
+  .nav-logo img { width: 34px; height: 34px; }
+  .nav-brand { font-size: 8px; letter-spacing: 1px; }
+  .btn-wallet { padding: 8px 12px; font-size: 7px; gap: 6px; }
+
+  /* Hero */
+  .hero-inner { padding: 32px 16px; gap: 24px; }
+  #hero { padding-top: 60px; }
+  .hero-label {
+    font-size: 6px; letter-spacing: 1px;
+    white-space: normal; word-break: break-word; line-height: 1.6;
+  }
+  .hero-title { font-size: clamp(30px, 9vw, 52px); letter-spacing: -1px; }
+  .hero-sub { font-size: 13px; margin: 18px 0 28px; max-width: 100%; }
+  .hero-img-wrap { width: min(240px, 72vw); }
+  .hero-kpis { gap: 12px; flex-wrap: wrap; margin-top: 28px; padding-top: 24px; }
+  .hero-kpis > div { width: calc(50% - 6px); min-width: 0; }
+  .kpi-val { font-size: 24px; }
+  .kpi-lbl { font-size: 6px; letter-spacing: 1px; }
+  .hero-actions { gap: 10px; flex-direction: column; }
+  .btn-primary, .btn-outline { width: 100%; text-align: center; font-size: 7px; padding: 11px 20px; }
+
+  /* Factions */
+  .factions-grid { grid-template-columns: 1fr; gap: 14px; }
+
+  /* Collection */
+  .nft-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .filter-bar { gap: 6px; flex-wrap: wrap; }
+  .filter-btn { font-size: 6px; padding: 6px 10px; }
+
+  /* Gaming */
+  .pixel-invaders { grid-template-columns: repeat(6, 22px); gap: 4px; }
+  .pixel-game-title { font-size: 14px; letter-spacing: 2px; }
+  .console-controls { gap: 12px; }
+
+  /* Roadmap */
+  .rm-card { padding: 20px; }
+  .rm-card-title { font-size: 10px; }
+
+  /* Mint */
+  .mint-stats { gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .mint-stats > * { width: calc(50% - 8px); }
+  .mint-stat-val { font-size: 24px; }
+  .mint-outer { padding: 0 4px; }
+
+  /* Footer */
+  .footer-inner { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+  .footer-copy { font-size: 6px; line-height: 1.8; }
+  .footer-eth { font-size: 7px; }
+}
+
+/* ── Très petit mobile ≤ 380px ── */
+@media(max-width:380px){
+  .nav-brand { display: none; }
+  .hero-img-wrap { width: min(200px, 80vw); }
+  .factions-grid, .footer-inner { grid-template-columns: 1fr; }
+  .hero-kpis > div, .mint-stats > * { width: 100%; }
+  .nft-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
 }
 
 /* NFT real images */
@@ -1214,8 +1336,21 @@ footer {
       <span class="wallet-dot" id="wDot"></span>
       <span class="btn-text" id="wText">CONNECT WALLET</span>
     </button>
+    <button class="nav-hamburger" id="navHamburger" aria-label="Menu" onclick="toggleMobileMenu()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<!-- Mobile nav drawer -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#factions" class="mobile-nav-link" onclick="toggleMobileMenu()">FACTIONS</a>
+  <a href="#collection" class="mobile-nav-link" onclick="toggleMobileMenu()">COLLECTION</a>
+  <a href="#gaming" class="mobile-nav-link" onclick="toggleMobileMenu()">GAMING</a>
+  <a href="#roadmap" class="mobile-nav-link" onclick="toggleMobileMenu()">ROADMAP</a>
+  <a href="#promo" class="mobile-nav-link" onclick="toggleMobileMenu()">UNIVERSE</a>
+  <a href="#mint" class="mobile-nav-link" onclick="toggleMobileMenu()">MINT</a>
+</div>
 
 <!-- ═══════════════ HERO ═══════════════ -->
 <section id="hero">
@@ -2041,6 +2176,23 @@ async function doMint() {
 if (typeof window.ethereum !== 'undefined') {
   window.ethereum.on('accountsChanged', accs => { if (!accs.length) disconnectWallet(); });
 }
+
+/* ── Mobile hamburger ── */
+function toggleMobileMenu() {
+  const btn = document.getElementById('navHamburger');
+  const nav = document.getElementById('mobileNav');
+  const open = btn.classList.toggle('open');
+  nav.classList.toggle('open', open);
+}
+// Fermer le drawer au clic en dehors
+document.addEventListener('click', e => {
+  const nav = document.getElementById('mobileNav');
+  const btn = document.getElementById('navHamburger');
+  if (nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) {
+    btn.classList.remove('open');
+    nav.classList.remove('open');
+  }
+});
 
 /* ── Progress bar ── */
 setTimeout(() => { document.getElementById('mintBar').style.width = '23%'; }, 800);
