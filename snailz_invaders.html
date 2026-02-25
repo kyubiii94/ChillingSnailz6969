@@ -611,134 +611,158 @@ let G = {
   freezeTimer: 0,
 };
 
-// ── PIXEL ART SPRITE SYSTEM ──
-// Draw snail sprites procedurally at runtime
+// ── PIXEL ART SPRITE SYSTEM — offscreen canvas cache ──
+const _ENEMY_COLORS = {
+  basic: { shell: '#8b0000', body: '#cc3333', glow: 'rgba(200,50,50,0.5)' },
+  fast:  { shell: '#ff6600', body: '#ff9944', glow: 'rgba(255,120,0,0.5)' },
+  tank:  { shell: '#444466', body: '#6666aa', glow: 'rgba(100,100,180,0.5)' },
+  boss:  { shell: '#8b008b', body: '#cc44cc', glow: 'rgba(200,0,200,0.6)' },
+};
+const _SPRITE_STEPS = 24;   // quantization steps for smooth animation
+const _spriteCache  = new Map();
+
+// Internal renderer — enemy snail into any context (used for pre-rendering)
+function _renderEnemySnail(tc, x, y, size, type, wobble) {
+  const p = size / 12;
+  const c = _ENEMY_COLORS[type] || _ENEMY_COLORS.basic;
+  tc.shadowColor = c.glow; tc.shadowBlur = 8;
+  tc.fillStyle = c.body;
+  tc.fillRect(x,       y + wobble,        12*p, 2*p);
+  tc.fillRect(x + p,   y + 2*p + wobble, 10*p, 2*p);
+  tc.fillStyle = '#ff0000'; tc.shadowColor = 'rgba(255,0,0,0.8)'; tc.shadowBlur = 6;
+  tc.fillRect(x + 2*p, y + 2*p + wobble, 2*p, 2*p);
+  tc.fillRect(x + 7*p, y + 2*p + wobble, 2*p, 2*p);
+  tc.fillStyle = '#ffff00'; tc.shadowBlur = 0;
+  tc.fillRect(x + 2.5*p, y + 2.5*p + wobble, p, p);
+  tc.fillRect(x + 7.5*p, y + 2.5*p + wobble, p, p);
+  tc.shadowColor = c.glow; tc.shadowBlur = 6;
+  tc.fillStyle = c.shell;
+  tc.fillRect(x + 2*p, y + 4*p + wobble, 8*p, 2*p);
+  tc.fillRect(x + 3*p, y + 6*p + wobble, 6*p, 3*p);
+  tc.fillRect(x + 4*p, y + 9*p + wobble, 4*p, 2*p);
+  tc.fillStyle = shadeColor(c.shell, 25);
+  tc.fillRect(x + 5*p, y + 5*p + wobble, 2*p, p);
+  tc.fillRect(x + 4*p, y + 6*p + wobble, p, 2*p);
+  tc.fillRect(x + 5*p, y + 7*p + wobble, 2*p, p);
+  if (type === 'boss') {
+    tc.fillStyle = '#ff00ff';
+    tc.fillRect(x - p,     y + 4*p + wobble,  p, 3*p);
+    tc.fillRect(x + 11*p,  y + 4*p + wobble,  p, 3*p);
+    tc.fillRect(x + 5*p,   y + 10*p + wobble, 2*p, 2*p);
+  }
+}
+
+// Internal renderer — player snail into any context
+function _renderPlayerSnail(tc, x, y, size, color, glow, t, eyeOpen) {
+  const p = size / 12;
+  tc.shadowColor = glow; tc.shadowBlur = 16;
+  tc.fillStyle = color;
+  tc.fillRect(x + 3*p, y,        6*p, 2*p);
+  tc.fillRect(x + 2*p, y + 2*p, 8*p, 3*p);
+  tc.fillRect(x + 3*p, y + 5*p, 6*p, 2*p);
+  tc.fillRect(x + 4*p, y + 7*p, 4*p, p);
+  tc.fillStyle = shadeColor(color, -40);
+  tc.fillRect(x + 5*p, y + 2*p, 2*p, p);
+  tc.fillRect(x + 4*p, y + 3*p, p, 2*p);
+  tc.fillRect(x + 5*p, y + 4*p, 2*p, p);
+  tc.fillStyle = shadeColor(color, 30); tc.shadowBlur = 4;
+  tc.fillRect(x + p, y + 8*p, 10*p, 2*p);
+  tc.fillRect(x,     y + 9*p, 12*p, 2*p);
+  tc.fillStyle = '#ffffff';
+  tc.fillRect(x + 2*p, y + 6*p, 2*p, 2*p);
+  tc.fillRect(x + 7*p, y + 6*p, 2*p, 2*p);
+  tc.fillStyle = '#000000'; tc.shadowBlur = 0;
+  if (eyeOpen) {
+    tc.fillRect(x + 2.5*p, y + 7*p, p, p);
+    tc.fillRect(x + 7.5*p, y + 7*p, p, p);
+  }
+  const antL = Math.sin(t) * 2, antR = Math.cos(t) * 2;
+  tc.strokeStyle = color; tc.lineWidth = 1;
+  tc.beginPath(); tc.moveTo(x + 3*p, y + 6*p); tc.lineTo(x + 1.5*p, y + 3*p + antL); tc.stroke();
+  tc.beginPath(); tc.moveTo(x + 8*p, y + 6*p); tc.lineTo(x + 9.5*p, y + 3*p + antR); tc.stroke();
+  tc.fillStyle = color;
+  tc.fillRect(x + p,   y + 2*p + antL, 1.5*p, 1.5*p);
+  tc.fillRect(x + 9*p, y + 2*p + antR, 1.5*p, 1.5*p);
+}
+
+// Cache helpers
+const _E_PAD = 14, _E_SZ = 36;
+const _P_PAD = 20, _P_SZ = 48;
+const _TAU   = 2 * Math.PI;
+
+function _getEnemySprite(type, wobble) {
+  const step = Math.round(((wobble + 1.5) / 3) * (_SPRITE_STEPS - 1));
+  const key  = `e_${type}_${step}`;
+  if (_spriteCache.has(key)) return _spriteCache.get(key);
+  const oc = document.createElement('canvas');
+  oc.width  = _E_SZ + _E_PAD * 2 + 6; // +6 for boss spikes
+  oc.height = _E_SZ + _E_PAD * 2 + 6;
+  _renderEnemySnail(oc.getContext('2d'), _E_PAD + 3, _E_PAD, _E_SZ, type,
+                    Math.sin(step * (_TAU / _SPRITE_STEPS)) * 1.5);
+  _spriteCache.set(key, oc);
+  return oc;
+}
+
+function _getPlayerSprite(factionKey, frame) {
+  const eyeOpen = !(frame % 200 < 6);
+  const step    = Math.round(((frame * 0.1) % _TAU) / _TAU * _SPRITE_STEPS) % _SPRITE_STEPS;
+  const key     = `p_${factionKey}_${step}_${eyeOpen ? 1 : 0}`;
+  if (_spriteCache.has(key)) return _spriteCache.get(key);
+  const oc = document.createElement('canvas');
+  oc.width = oc.height = _P_SZ + _P_PAD * 2;
+  const fc = FACTIONS[factionKey];
+  _renderPlayerSnail(oc.getContext('2d'), _P_PAD, _P_PAD, _P_SZ,
+                     fc.color, fc.glow, step * (_TAU / _SPRITE_STEPS), eyeOpen);
+  _spriteCache.set(key, oc);
+  return oc;
+}
+
 function drawPixelSnail(x, y, size, color, glow, isPlayer, frame) {
+  if (isPlayer) {
+    ctx.drawImage(_getPlayerSprite(G.faction, frame), x - _P_PAD, y - _P_PAD);
+    return;
+  }
+  // Non-player fallback (direct render, not currently used in game)
   ctx.save();
-  const p = size / 12; // pixel unit
-
-  // Glow
-  ctx.shadowColor = glow;
-  ctx.shadowBlur = isPlayer ? 16 : 8;
-
-  // Shell
+  const p = size / 12, shellOffY = Math.sin(frame * 0.06) * 1.5;
+  ctx.shadowColor = glow; ctx.shadowBlur = 8;
   ctx.fillStyle = color;
-  const shellOffY = isPlayer ? 0 : Math.sin(frame * 0.06) * 1.5;
-
-  // Shell body (rounded shape via pixels)
-  ctx.fillRect(x + 3*p, y + shellOffY, 6*p, 2*p);
+  ctx.fillRect(x + 3*p, y + shellOffY,        6*p, 2*p);
   ctx.fillRect(x + 2*p, y + 2*p + shellOffY, 8*p, 3*p);
   ctx.fillRect(x + 3*p, y + 5*p + shellOffY, 6*p, 2*p);
   ctx.fillRect(x + 4*p, y + 7*p + shellOffY, 4*p, p);
-
-  // Shell spiral (darker)
   ctx.fillStyle = shadeColor(color, -40);
   ctx.fillRect(x + 5*p, y + 2*p + shellOffY, 2*p, p);
   ctx.fillRect(x + 4*p, y + 3*p + shellOffY, p, 2*p);
   ctx.fillRect(x + 5*p, y + 4*p + shellOffY, 2*p, p);
-
-  // Body (slug part)
-  ctx.fillStyle = shadeColor(color, 30);
-  ctx.shadowBlur = 4;
+  ctx.fillStyle = shadeColor(color, 30); ctx.shadowBlur = 4;
   ctx.fillRect(x + p, y + 8*p, 10*p, 2*p);
-  ctx.fillRect(x, y + 9*p, 12*p, 2*p);
-
-  // Eyes
+  ctx.fillRect(x,     y + 9*p, 12*p, 2*p);
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(x + 2*p, y + 6*p + shellOffY, 2*p, 2*p);
   ctx.fillRect(x + 7*p, y + 6*p + shellOffY, 2*p, 2*p);
-  ctx.fillStyle = '#000000';
-  ctx.shadowBlur = 0;
-  const eyeBlink = frame % 200 < 6;
-  if (!eyeBlink) {
+  ctx.fillStyle = '#000000'; ctx.shadowBlur = 0;
+  if (!(frame % 200 < 6)) {
     ctx.fillRect(x + 2.5*p, y + 7*p + shellOffY, p, p);
     ctx.fillRect(x + 7.5*p, y + 7*p + shellOffY, p, p);
   }
-
-  // Antenna (if player)
-  if (isPlayer) {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(x + 3*p, y + 6*p);
-    ctx.lineTo(x + 1.5*p, y + 3*p + Math.sin(frame * 0.1) * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x + 8*p, y + 6*p);
-    ctx.lineTo(x + 9.5*p, y + 3*p + Math.cos(frame * 0.1) * 2);
-    ctx.stroke();
-    // Antenna tips
-    ctx.fillStyle = color;
-    ctx.fillRect(x + p, y + 2*p + Math.sin(frame * 0.1) * 2, 1.5*p, 1.5*p);
-    ctx.fillRect(x + 9*p, y + 2*p + Math.cos(frame * 0.1) * 2, 1.5*p, 1.5*p);
-  }
-
   ctx.restore();
 }
 
-// Enemy snail (inverted — shell on bottom, face forward)
 function drawEnemySnail(x, y, size, type, frame) {
-  ctx.save();
-  const p = size / 12;
-  const colors = {
-    basic:  { shell: '#8b0000', body: '#cc3333', glow: 'rgba(200,50,50,0.5)' },
-    fast:   { shell: '#ff6600', body: '#ff9944', glow: 'rgba(255,120,0,0.5)' },
-    tank:   { shell: '#444466', body: '#6666aa', glow: 'rgba(100,100,180,0.5)' },
-    boss:   { shell: '#8b008b', body: '#cc44cc', glow: 'rgba(200,0,200,0.6)' },
-  };
-  const c = colors[type] || colors.basic;
   const wobble = Math.sin(frame * 0.08 + x * 0.1) * 1.5;
-
-  ctx.shadowColor = c.glow;
-  ctx.shadowBlur = 8;
-
-  // Body (top part — head facing down)
-  ctx.fillStyle = c.body;
-  ctx.fillRect(x, y + wobble, 12*p, 2*p);
-  ctx.fillRect(x + p, y + 2*p + wobble, 10*p, 2*p);
-
-  // Eyes (menacing — looking down)
-  ctx.fillStyle = '#ff0000';
-  ctx.shadowColor = 'rgba(255,0,0,0.8)';
-  ctx.shadowBlur = 6;
-  ctx.fillRect(x + 2*p, y + 2*p + wobble, 2*p, 2*p);
-  ctx.fillRect(x + 7*p, y + 2*p + wobble, 2*p, 2*p);
-  ctx.fillStyle = '#ffff00';
-  ctx.shadowBlur = 0;
-  ctx.fillRect(x + 2.5*p, y + 2.5*p + wobble, p, p);
-  ctx.fillRect(x + 7.5*p, y + 2.5*p + wobble, p, p);
-
-  // Shell (bottom)
-  ctx.shadowColor = c.glow;
-  ctx.shadowBlur = 6;
-  ctx.fillStyle = c.shell;
-  ctx.fillRect(x + 2*p, y + 4*p + wobble, 8*p, 2*p);
-  ctx.fillRect(x + 3*p, y + 6*p + wobble, 6*p, 3*p);
-  ctx.fillRect(x + 4*p, y + 9*p + wobble, 4*p, 2*p);
-
-  // Shell detail
-  ctx.fillStyle = shadeColor(c.shell, 25);
-  ctx.fillRect(x + 5*p, y + 5*p + wobble, 2*p, p);
-  ctx.fillRect(x + 4*p, y + 6*p + wobble, p, 2*p);
-  ctx.fillRect(x + 5*p, y + 7*p + wobble, 2*p, p);
-
-  // Spikes for boss
-  if (type === 'boss') {
-    ctx.fillStyle = '#ff00ff';
-    ctx.fillRect(x - p, y + 4*p + wobble, p, 3*p);
-    ctx.fillRect(x + 11*p, y + 4*p + wobble, p, 3*p);
-    ctx.fillRect(x + 5*p, y + 10*p + wobble, 2*p, 2*p);
-  }
-
-  ctx.restore();
+  ctx.drawImage(_getEnemySprite(type, wobble), x - _E_PAD - 3, y - _E_PAD);
 }
 
+const _shadeCache = {};
 function shadeColor(hex, percent) {
+  const key = hex + percent;
+  if (_shadeCache[key]) return _shadeCache[key];
   let r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
   r = Math.min(255, Math.max(0, r + percent));
   g = Math.min(255, Math.max(0, g + percent));
   b = Math.min(255, Math.max(0, b + percent));
-  return `rgb(${r},${g},${b})`;
+  return (_shadeCache[key] = `rgb(${r},${g},${b})`);
 }
 
 // ── ENTITIES ──
@@ -949,20 +973,28 @@ function resumeGame() {
   requestAnimationFrame(gameLoop);
 }
 
+// ── Game-over screen refs ──
+const _elNavHi    = document.getElementById('navHiScore');
+const _elGoScore  = document.getElementById('goScore');
+const _elGoWave   = document.getElementById('goWave');
+const _elGoKills  = document.getElementById('goKills');
+const _elGoCombo  = document.getElementById('goCombo');
+const _elNewRec   = document.getElementById('newRecord');
+
 function gameOver() {
   G.state = 'gameover';
   if (G.score > G.hiScore) {
     G.hiScore = G.score;
     localStorage.setItem('snailzHiScore', G.hiScore);
-    document.getElementById('newRecord').classList.remove('hidden');
+    _elNewRec.classList.remove('hidden');
   } else {
-    document.getElementById('newRecord').classList.add('hidden');
+    _elNewRec.classList.add('hidden');
   }
-  document.getElementById('navHiScore').textContent = String(G.hiScore).padStart(5, '0');
-  document.getElementById('goScore').textContent = G.score;
-  document.getElementById('goWave').textContent = G.wave;
-  document.getElementById('goKills').textContent = G.kills;
-  document.getElementById('goCombo').textContent = G.maxCombo;
+  _elNavHi.textContent   = String(G.hiScore).padStart(5, '0');
+  _elGoScore.textContent = G.score;
+  _elGoWave.textContent  = G.wave;
+  _elGoKills.textContent = G.kills;
+  _elGoCombo.textContent = G.maxCombo;
   showScreen('gameOverScreen');
 }
 
@@ -980,13 +1012,17 @@ function hideAllScreens() {
   document.querySelectorAll('.overlay').forEach(o => o.classList.add('hidden'));
 }
 
-// ── HUD UPDATE ──
+// ── HUD — refs cachées ──
+const _hudScore = document.getElementById('hudScore');
+const _hudLives = document.getElementById('hudLives');
+const _hudWave  = document.getElementById('hudWave');
+const _hudCombo = document.getElementById('hudCombo');
+
 function updateHUD() {
-  document.getElementById('hudScore').textContent = String(G.score).padStart(5, '0');
-  const hearts = '♥'.repeat(Math.max(0, G.lives)) + '♡'.repeat(Math.max(0, 3 - G.lives));
-  document.getElementById('hudLives').textContent = hearts;
-  document.getElementById('hudWave').textContent = String(G.wave).padStart(2, '0');
-  document.getElementById('hudCombo').textContent = 'x' + G.combo;
+  _hudScore.textContent = String(G.score).padStart(5, '0');
+  _hudLives.textContent = '♥'.repeat(Math.max(0, G.lives)) + '♡'.repeat(Math.max(0, 3 - G.lives));
+  _hudWave.textContent  = String(G.wave).padStart(2, '0');
+  _hudCombo.textContent = 'x' + G.combo;
 }
 
 // ── UPDATE LOGIC ──
@@ -1180,7 +1216,7 @@ function update() {
   if (G.shakeTimer > 0) G.shakeTimer--;
 
   // Wave complete?
-  if (aliveEnemies.filter(e => e.alive).length === 0 && !enemies.some(e => e.entering)) {
+  if (aliveEnemies.length === 0 && !enemies.some(e => e.entering)) {
     G.wave++;
     G.state = 'waveintro';
     showScreen('waveScreen');
@@ -1396,8 +1432,7 @@ function gameLoop() {
   draw();
   if (G.state !== 'gameover' && G.state !== 'menu') {
     requestAnimationFrame(gameLoop);
-  } else if (G.state === 'gameover' || G.state === 'menu') {
-    // Keep drawing stars for ambient background
+  } else {
     drawMenuBg();
   }
 }
@@ -1415,12 +1450,11 @@ function drawMenuBg() {
 document.getElementById('navHiScore').textContent = String(G.hiScore).padStart(5, '0');
 
 // Responsive canvas
+const _canvasFrame = document.getElementById('canvasFrame');
 function resizeCanvas() {
-  const frame = document.getElementById('canvasFrame');
   const maxW = Math.min(720, window.innerWidth - 40);
-  const ratio = 520 / 720;
   canvas.style.width = maxW + 'px';
-  canvas.style.height = (maxW * ratio) + 'px';
+  canvas.style.height = (maxW * (520 / 720)) + 'px';
 }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
