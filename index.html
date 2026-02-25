@@ -188,6 +188,37 @@ nav {
 
 .nav-right { display: flex; align-items: center; gap: 12px; }
 
+/* Hamburger (caché sur desktop) */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  background: transparent;
+  border: 1px solid rgba(0,212,255,0.3);
+  color: var(--aqua);
+  cursor: none;
+  transition: var(--transition);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+.nav-toggle span {
+  display: block;
+  height: 2px;
+  background: currentColor;
+  transition: var(--transition);
+}
+.nav-toggle:hover { border-color: var(--aqua); background: var(--aqua-dim); }
+.nav-toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
 /* Wallet button */
 .btn-wallet {
   display: flex; align-items: center; gap: 8px;
@@ -963,7 +994,43 @@ footer {
   .promo-grid { grid-template-columns:1fr; }
   .footer-inner { grid-template-columns:1fr 1fr; }
   nav { padding:0 20px; }
-  .nav-center { display:none; }
+
+  /* Menu responsive : hamburger + panneau */
+  .nav-toggle { display: flex; }
+  .nav-center {
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(3,4,10,0.97);
+    backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+    padding: 24px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 999;
+  }
+  nav.nav-open .nav-center {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .nav-center .nav-link {
+    font-size: 10px;
+    padding: 14px 24px;
+    width: 100%;
+    max-width: 280px;
+    text-align: center;
+  }
+
   .container { padding:0 20px; }
 }
 
@@ -1200,7 +1267,13 @@ footer {
     <span class="nav-brand">CHILLING <span>SNAILZ</span></span>
   </a>
 
-  <div class="nav-center">
+  <button class="nav-toggle" id="navToggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="nav-center" id="navMenu">
     <a href="#factions" class="nav-link">FACTIONS</a>
     <a href="#collection" class="nav-link">COLLECTION</a>
     <a href="#gaming" class="nav-link">GAMING</a>
@@ -1950,6 +2023,36 @@ animFol();
 const _hoverSel = 'a,button,.faction-card,.nft-card,.game-entry,.promo-card,.wallet-btn,.console-btn';
 document.addEventListener('mouseover', e => { if (e.target.closest(_hoverSel)) document.body.classList.add('hovering'); });
 document.addEventListener('mouseout',  e => { if (e.target.closest(_hoverSel)) document.body.classList.remove('hovering'); });
+
+/* ── Menu responsive (hamburger) ── */
+(function() {
+  const nav = document.querySelector('nav');
+  const toggle = document.getElementById('navToggle');
+  const menu = document.getElementById('navMenu');
+  if (!nav || !toggle || !menu) return;
+  function openMenu() {
+    nav.classList.add('nav-open');
+    toggle.setAttribute('aria-expanded', 'true');
+    toggle.setAttribute('aria-label', 'Fermer le menu');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu() {
+    nav.classList.remove('nav-open');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Ouvrir le menu');
+    document.body.style.overflow = '';
+  }
+  toggle.addEventListener('click', function() {
+    if (nav.classList.contains('nav-open')) closeMenu();
+    else openMenu();
+  });
+  menu.querySelectorAll('.nav-link').forEach(function(link) {
+    link.addEventListener('click', closeMenu);
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && nav.classList.contains('nav-open')) closeMenu();
+  });
+})();
 
 /* ── Scroll Reveal ── */
 const revObs = new IntersectionObserver(entries => {
