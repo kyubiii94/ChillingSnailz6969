@@ -388,28 +388,9 @@ body::before {
 }
 
 /* ===========================
-   MOBILE TOUCH CONTROLS
+   TOUCH BUTTONS (shared)
 =========================== */
-.touch-controls {
-  display: none;
-  width: 100%; max-width: 720px;
-  padding: 10px 16px;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(8,12,24,0.85);
-  border-top: 1px solid var(--border);
-  gap: 8px;
-  /* Reste visible même quand le canvas est grand */
-  flex-shrink: 0;
-}
-.touch-dpad {
-  display: flex; gap: 8px; align-items: center;
-}
-.touch-action-group {
-  display: flex; gap: 10px; align-items: center;
-}
 .touch-btn {
-  width: 62px; height: 62px;
   background: rgba(15,22,40,0.9);
   border: 2px solid rgba(57,255,20,0.3);
   color: var(--chill);
@@ -419,105 +400,245 @@ body::before {
   -webkit-user-select: none; user-select: none;
   touch-action: manipulation;
   border-radius: 6px;
-  /* Feedback visuel immédiat */
   transition: background 0.06s, border-color 0.06s, box-shadow 0.06s;
   -webkit-tap-highlight-color: transparent;
 }
-.touch-btn:active,
-.touch-btn.pressed {
+.touch-btn:active, .touch-btn.pressed {
   background: var(--chill-dim);
   border-color: var(--chill);
   box-shadow: 0 0 18px rgba(57,255,20,0.35);
   transform: scale(0.93);
 }
-/* Bouton FIRE */
 .touch-fire {
-  width: 78px; height: 78px;
   border-radius: 50%;
   background: rgba(255,69,0,0.12);
   border: 2px solid rgba(255,69,0,0.45);
   color: var(--magma);
   font-family: var(--font-pixel); font-size: 8px; letter-spacing: 1px;
 }
-.touch-fire:active,
-.touch-fire.pressed {
+.touch-fire:active, .touch-fire.pressed {
   background: rgba(255,69,0,0.28);
   border-color: var(--magma);
   box-shadow: 0 0 22px rgba(255,69,0,0.45);
 }
-/* Bouton SPÉCIAL */
 .touch-special {
-  width: 58px; height: 58px;
   border-radius: 50%;
   background: rgba(168,85,247,0.1);
   border: 2px solid rgba(168,85,247,0.35);
   color: var(--wizard);
-  font-size: 20px;
 }
-.touch-special:active,
-.touch-special.pressed {
+.touch-special:active, .touch-special.pressed {
   background: var(--wizard-dim);
   border-color: var(--wizard);
   box-shadow: 0 0 18px rgba(168,85,247,0.4);
 }
-/* Bouton PAUSE */
 .touch-pause {
-  width: 46px; height: 46px;
   border-radius: 4px;
   border-color: rgba(255,255,255,0.12);
   color: var(--muted);
-  font-size: 18px;
 }
 .touch-pause:active { border-color: var(--aqua); color: var(--aqua); }
 
 /* ===========================
-   RESPONSIVE MOBILE
+   PORTRAIT TOUCH BAR (below canvas)
+=========================== */
+.touch-controls {
+  display: none;
+  width: 100%; max-width: 720px;
+  padding: 8px 14px;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(8,12,24,0.85);
+  border-top: 1px solid var(--border);
+  gap: 8px;
+  flex-shrink: 0;
+}
+.touch-dpad { display: flex; gap: 8px; align-items: center; }
+.touch-action-group { display: flex; gap: 10px; align-items: center; }
+.touch-controls .touch-btn { width: 62px; height: 62px; }
+.touch-controls .touch-fire { width: 76px; height: 76px; }
+.touch-controls .touch-special { width: 56px; height: 56px; font-size: 20px; }
+.touch-controls .touch-pause { width: 44px; height: 44px; font-size: 18px; }
+
+/* ===========================
+   LANDSCAPE SIDE PANELS
+=========================== */
+.game-area {
+  /* Transparent wrapper in portrait — children flow directly */
+  display: contents;
+}
+.touch-panel-left,
+.touch-panel-right {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px 8px 14px;
+  gap: 12px;
+  background: rgba(8,12,24,0.8);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  width: 86px;
+}
+.touch-panel-left  { border-right: 1px solid var(--border); }
+.touch-panel-right { border-left:  1px solid var(--border); }
+.touch-panel-left  .touch-btn { width: 64px; height: 64px; font-size: 26px; }
+.touch-panel-right .touch-btn { width: 64px; height: 64px; font-size: 26px; }
+.touch-panel-right .touch-fire    { width: 72px; height: 72px; font-size: 8px; }
+.touch-panel-right .touch-special { width: 60px; height: 60px; font-size: 22px; }
+.touch-panel-left  .touch-pause   { width: 42px; height: 42px; font-size: 16px; margin-bottom: auto; margin-top: 2px; }
+
+/* ===========================
+   PORTRAIT OVERLAY (rotate hint)
+=========================== */
+.portrait-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(3,4,10,0.97);
+  backdrop-filter: blur(8px);
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 28px; text-align: center; padding: 40px;
+  pointer-events: all;
+}
+.portrait-overlay.active { display: flex; }
+.portrait-phone {
+  font-size: 72px;
+  display: inline-block;
+  animation: rotate-hint 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 24px rgba(57,255,20,0.5));
+}
+@keyframes rotate-hint {
+  0%,25%   { transform: rotate(0deg); }
+  55%,85%  { transform: rotate(90deg); }
+  100%     { transform: rotate(0deg); }
+}
+.portrait-title {
+  font-family: var(--font-pixel); font-size: 9px;
+  letter-spacing: 2px; color: var(--chill);
+  text-shadow: var(--chill-glow);
+  animation: pulse 2s infinite;
+}
+.portrait-sub {
+  font-family: var(--font-mono); font-size: 14px;
+  color: var(--muted); line-height: 1.7; max-width: 260px;
+}
+.portrait-hint {
+  font-family: var(--font-pixel); font-size: 6px;
+  color: rgba(255,255,255,0.2); letter-spacing: 1px;
+}
+
+/* ===========================
+   POINTER: COARSE (touch devices)
 =========================== */
 @media (pointer: coarse) {
-  /* Empêche le scroll / zoom du navigateur sur le canvas */
   #gameCanvas { touch-action: none; }
   body { overscroll-behavior: none; }
 }
 
-@media (max-width: 768px) {
+/* ===========================
+   PORTRAIT MOBILE
+=========================== */
+@media (max-width: 768px) and (orientation: portrait) {
   .touch-controls { display: flex; }
-  .controls-bar { display: none; }
-  .game-wrapper { padding: 64px 8px 8px; gap: 8px; }
-  .hud { padding: 7px 12px; }
-
-  /* Nav compacte */
-  .game-nav { padding: 0 12px; }
-  .nav-title { font-size: 7px; letter-spacing: 1px; }
-  .back-btn { font-size: 6px; padding: 5px 8px; gap: 4px; }
-  .nav-hi-score { font-size: 6px; }
-  .nav-faction { font-size: 5px; padding: 3px 6px; }
+  .controls-bar   { display: none; }
+  .game-wrapper   { padding: 64px 8px 8px; gap: 8px; }
+  .hud            { padding: 7px 12px; }
+  .game-nav       { padding: 0 12px; }
+  .nav-title      { font-size: 7px; letter-spacing: 1px; }
+  .back-btn       { font-size: 6px; padding: 5px 8px; gap: 4px; }
+  .nav-hi-score   { font-size: 6px; }
+  .nav-faction    { font-size: 5px; padding: 3px 6px; }
 }
-
-@media (max-width: 480px) {
+@media (max-width: 480px) and (orientation: portrait) {
   .hud { padding: 5px 8px; gap: 0; }
-  .hud-val { font-size: 9px; }
+  .hud-val   { font-size: 9px; }
   .hud-label { font-size: 5px; letter-spacing: 1px; }
   .hud-block { padding: 0 4px; }
-
-  /* Overlay lisibles sur petit écran */
-  .overlay { padding: 20px 16px; gap: 14px; }
+  .overlay      { padding: 20px 16px; gap: 14px; }
   .overlay-title { font-size: clamp(22px, 7vw, 38px); }
-  .overlay-sub { font-size: 7px; letter-spacing: 1px; line-height: 1.8; }
-  .go-score { font-size: 40px; }
-  .go-stats { gap: 14px; flex-wrap: wrap; justify-content: center; }
-
-  /* Faction select en 2×2 */
+  .overlay-sub   { font-size: 7px; letter-spacing: 1px; line-height: 1.8; }
+  .go-score  { font-size: 40px; }
+  .go-stats  { gap: 14px; flex-wrap: wrap; justify-content: center; }
   .faction-select { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .faction-btn { padding: 12px 8px; font-size: 5px; }
   .faction-btn .f-icon { font-size: 24px; }
-
-  /* Contrôles encore plus compacts */
-  .touch-btn { width: 56px; height: 56px; font-size: 22px; }
-  .touch-fire { width: 70px; height: 70px; font-size: 7px; }
-  .touch-special { width: 52px; height: 52px; font-size: 18px; }
-  .touch-pause { width: 40px; height: 40px; font-size: 15px; }
-
+  .touch-controls .touch-btn    { width: 54px; height: 54px; font-size: 21px; }
+  .touch-controls .touch-fire   { width: 68px; height: 68px; font-size: 7px; }
+  .touch-controls .touch-special{ width: 50px; height: 50px; font-size: 17px; }
+  .touch-controls .touch-pause  { width: 38px; height: 38px; font-size: 14px; }
   .nav-title { display: none; }
+}
+
+/* ===========================
+   LANDSCAPE MOBILE (full layout)
+=========================== */
+@media (orientation: landscape) and (max-height: 540px) and (pointer: coarse) {
+  html, body { height: 100%; overflow: hidden; }
+
+  /* Slim navbar */
+  .game-nav     { height: 40px; padding: 0 10px; }
+  .nav-title    { display: none; }
+  .back-btn     { font-size: 6px; padding: 4px 8px; }
+  .nav-faction  { font-size: 5px; padding: 2px 6px; }
+  .nav-hi-score { font-size: 6px; }
+
+  /* Compact HUD strip */
+  .hud       { max-width: 100%; padding: 3px 10px; flex-shrink: 0; border-left: none; border-right: none; clip-path: none; }
+  .hud-val   { font-size: 9px; }
+  .hud-label { font-size: 4px; letter-spacing: 1px; }
+  .hud-block { padding: 0 8px; }
+
+  /* Wrapper: column, full viewport */
+  .game-wrapper {
+    flex-direction: column;
+    padding: 40px 0 0 0;
+    height: 100vh;
+    gap: 3px;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  /* Game area becomes a row */
+  .game-area {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  /* Show landscape panels, hide portrait bar */
+  .touch-panel-left,
+  .touch-panel-right { display: flex; }
+  .controls-bar      { display: none !important; }
+  .touch-controls    { display: none !important; }
+
+  /* Canvas fills the center */
+  .canvas-frame {
+    flex: 1;
+    min-width: 0;
+    clip-path: none;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* Overlays compact in landscape */
+  .overlay       { padding: 14px 20px; gap: 10px; }
+  .overlay-title { font-size: clamp(16px, 4vw, 26px); }
+  .overlay-sub   { font-size: 6px; line-height: 1.7; max-width: 320px; }
+  .overlay-art   { font-size: 32px; }
+  .go-score      { font-size: 30px; }
+  .go-stats      { gap: 14px; }
+  .faction-select { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .faction-btn   { padding: 7px 5px; font-size: 5px; }
+  .faction-btn .f-icon { font-size: 18px; }
+  .start-game-btn { padding: 10px 22px; font-size: 8px; }
+  .pause-options  { gap: 8px; }
+  .pause-btn      { padding: 8px 14px; font-size: 7px; }
 }
 </style>
 </head>
@@ -527,6 +648,14 @@ body::before {
 <div class="game-bg"></div>
 <div class="game-grid-bg"></div>
 <div class="game-scan"></div>
+
+<!-- Portrait overlay: invite to rotate -->
+<div class="portrait-overlay" id="portraitOverlay">
+  <div class="portrait-phone">📱</div>
+  <div class="portrait-title">TOURNE TON TÉLÉPHONE</div>
+  <div class="portrait-sub">Le jeu est optimisé en mode paysage pour une meilleure expérience</div>
+  <div class="portrait-hint">↻ ROTATE TO LANDSCAPE</div>
+</div>
 
 <!-- Navigation -->
 <nav class="game-nav">
@@ -563,77 +692,95 @@ body::before {
     </div>
   </div>
 
-  <!-- Canvas with overlays -->
-  <div class="canvas-frame" id="canvasFrame">
-    <canvas id="gameCanvas" width="720" height="520"></canvas>
+  <!-- game-area: transparent in portrait, flex-row in landscape -->
+  <div class="game-area">
 
-    <!-- START SCREEN -->
-    <div class="overlay" id="startScreen">
-      <div class="overlay-art">🐌</div>
-      <div class="overlay-title">
-        SNAILZ<br><span class="accent">INVADERS</span>
-      </div>
-      <div class="overlay-sub">
-        DEFENDS LETTUCE ISLAND CONTRE LES ENVAHISSEURS.<br>CHOISIS TA FACTION.
-      </div>
-      <div class="faction-select" id="factionSelect">
-        <button class="faction-btn selected" data-faction="aqua" onclick="selectFaction('aqua', this)">
-          <span class="f-icon">🐌</span>AQUA
-        </button>
-        <button class="faction-btn" data-faction="magma" onclick="selectFaction('magma', this)">
-          <span class="f-icon">🔥</span>MAGMA
-        </button>
-        <button class="faction-btn" data-faction="wizard" onclick="selectFaction('wizard', this)">
-          <span class="f-icon">🧙</span>WIZARD
-        </button>
-        <button class="faction-btn" data-faction="chill" onclick="selectFaction('chill', this)">
-          <span class="f-icon">🌿</span>CHILL
-        </button>
-      </div>
-      <button class="start-game-btn" onclick="startGame()">► JOUER</button>
+    <!-- LEFT PANEL — landscape only (◄ ► + pause) -->
+    <div class="touch-panel-left" id="touchPanelLeft">
+      <button class="touch-btn touch-pause" id="btnPauseL">⏸</button>
+      <button class="touch-btn" id="btnLeftL">◄</button>
+      <button class="touch-btn" id="btnRightL">►</button>
     </div>
 
-    <!-- PAUSE SCREEN -->
-    <div class="overlay hidden" id="pauseScreen">
-      <div class="overlay-title"><span class="aqua">PAUSE</span></div>
-      <div class="pause-options">
-        <button class="pause-btn primary" onclick="resumeGame()">REPRENDRE</button>
-        <button class="pause-btn" onclick="quitToMenu()">MENU</button>
-      </div>
-    </div>
+    <!-- Canvas with overlays -->
+    <div class="canvas-frame" id="canvasFrame">
+      <canvas id="gameCanvas" width="720" height="520"></canvas>
 
-    <!-- GAME OVER SCREEN -->
-    <div class="overlay hidden" id="gameOverScreen">
-      <div class="overlay-title">GAME<br><span class="accent">OVER</span></div>
-      <div class="go-score" id="goScore">0</div>
-      <div class="new-record hidden" id="newRecord">★ NOUVEAU RECORD ★</div>
-      <div class="go-stats">
-        <div class="go-stat">
-          <div class="go-stat-val" id="goWave">0</div>
-          <div class="go-stat-lbl">VAGUES</div>
+      <!-- START SCREEN -->
+      <div class="overlay" id="startScreen">
+        <div class="overlay-art">🐌</div>
+        <div class="overlay-title">
+          SNAILZ<br><span class="accent">INVADERS</span>
         </div>
-        <div class="go-stat">
-          <div class="go-stat-val" id="goKills">0</div>
-          <div class="go-stat-lbl">KILLS</div>
+        <div class="overlay-sub">
+          DEFENDS LETTUCE ISLAND CONTRE LES ENVAHISSEURS.<br>CHOISIS TA FACTION.
         </div>
-        <div class="go-stat">
-          <div class="go-stat-val" id="goCombo">0</div>
-          <div class="go-stat-lbl">MAX COMBO</div>
+        <div class="faction-select" id="factionSelect">
+          <button class="faction-btn selected" data-faction="aqua" onclick="selectFaction('aqua', this)">
+            <span class="f-icon">🐌</span>AQUA
+          </button>
+          <button class="faction-btn" data-faction="magma" onclick="selectFaction('magma', this)">
+            <span class="f-icon">🔥</span>MAGMA
+          </button>
+          <button class="faction-btn" data-faction="wizard" onclick="selectFaction('wizard', this)">
+            <span class="f-icon">🧙</span>WIZARD
+          </button>
+          <button class="faction-btn" data-faction="chill" onclick="selectFaction('chill', this)">
+            <span class="f-icon">🌿</span>CHILL
+          </button>
+        </div>
+        <button class="start-game-btn" onclick="startGame()">► JOUER</button>
+      </div>
+
+      <!-- PAUSE SCREEN -->
+      <div class="overlay hidden" id="pauseScreen">
+        <div class="overlay-title"><span class="aqua">PAUSE</span></div>
+        <div class="pause-options">
+          <button class="pause-btn primary" onclick="resumeGame()">REPRENDRE</button>
+          <button class="pause-btn" onclick="quitToMenu()">MENU</button>
         </div>
       </div>
-      <button class="start-game-btn" onclick="startGame()">► REJOUER</button>
-      <button class="pause-btn" onclick="quitToMenu()" style="animation:slideUp 0.5s ease-out 0.4s both">MENU</button>
+
+      <!-- GAME OVER SCREEN -->
+      <div class="overlay hidden" id="gameOverScreen">
+        <div class="overlay-title">GAME<br><span class="accent">OVER</span></div>
+        <div class="go-score" id="goScore">0</div>
+        <div class="new-record hidden" id="newRecord">★ NOUVEAU RECORD ★</div>
+        <div class="go-stats">
+          <div class="go-stat">
+            <div class="go-stat-val" id="goWave">0</div>
+            <div class="go-stat-lbl">VAGUES</div>
+          </div>
+          <div class="go-stat">
+            <div class="go-stat-val" id="goKills">0</div>
+            <div class="go-stat-lbl">KILLS</div>
+          </div>
+          <div class="go-stat">
+            <div class="go-stat-val" id="goCombo">0</div>
+            <div class="go-stat-lbl">MAX COMBO</div>
+          </div>
+        </div>
+        <button class="start-game-btn" onclick="startGame()">► REJOUER</button>
+        <button class="pause-btn" onclick="quitToMenu()" style="animation:slideUp 0.5s ease-out 0.4s both">MENU</button>
+      </div>
+
+      <!-- WAVE ANNOUNCEMENT -->
+      <div class="overlay hidden" id="waveScreen">
+        <div class="overlay-title" style="font-size:22px;color:var(--aqua)">VAGUE</div>
+        <div class="go-score" id="waveNum" style="font-size:72px">1</div>
+        <div class="overlay-sub" id="waveSubtext">LES ESCARGOTS APPROCHENT...</div>
+      </div>
     </div>
 
-    <!-- WAVE ANNOUNCEMENT -->
-    <div class="overlay hidden" id="waveScreen">
-      <div class="overlay-title" style="font-size:22px;color:var(--aqua)">VAGUE</div>
-      <div class="go-score" id="waveNum" style="font-size:72px">1</div>
-      <div class="overlay-sub" id="waveSubtext">LES ESCARGOTS APPROCHENT...</div>
+    <!-- RIGHT PANEL — landscape only (✦ SPECIAL + FIRE) -->
+    <div class="touch-panel-right" id="touchPanelRight">
+      <button class="touch-btn touch-special" id="btnSpecialR">✦</button>
+      <button class="touch-btn touch-fire" id="btnFireR">FIRE</button>
     </div>
-  </div>
 
-  <!-- Controls hint -->
+  </div><!-- /game-area -->
+
+  <!-- Desktop controls hint -->
   <div class="controls-bar">
     <div class="ctrl-hint"><span class="key-badge">◄ ►</span> DEPLACER</div>
     <div class="ctrl-hint"><span class="key-badge">ESPACE</span> TIRER</div>
@@ -641,16 +788,13 @@ body::before {
     <div class="ctrl-hint"><span class="key-badge">ESC</span> MENU</div>
   </div>
 
-  <!-- Mobile touch controls -->
+  <!-- Portrait touch controls (below canvas) -->
   <div class="touch-controls" id="touchControls">
-    <!-- Gauche / Droite -->
     <div class="touch-dpad">
       <button class="touch-btn" id="btnLeft">◄</button>
       <button class="touch-btn" id="btnRight">►</button>
     </div>
-    <!-- Pause -->
     <button class="touch-btn touch-pause" id="btnPause">⏸</button>
-    <!-- Spécial + Feu -->
     <div class="touch-action-group">
       <button class="touch-btn touch-special" id="btnSpecial">✦</button>
       <button class="touch-btn touch-fire" id="btnFire">FIRE</button>
@@ -873,42 +1017,45 @@ window.addEventListener('keydown', e => {
 });
 window.addEventListener('keyup', e => { keys[e.code] = false; });
 
-// Touch controls
+// Touch controls — bind portrait + landscape buttons
 function setupTouch() {
-  const btnL = document.getElementById('btnLeft');
-  const btnR = document.getElementById('btnRight');
-  const btnF = document.getElementById('btnFire');
-  const btnS = document.getElementById('btnSpecial');
-  const btnP = document.getElementById('btnPause');
-
-  // Lie un bouton à un code clavier avec feedback visuel
+  // Bind a button to a keys[] entry with visual feedback
   function bindKey(el, keyCode) {
+    if (!el) return;
     const press   = e => { e.preventDefault(); keys[keyCode] = true;  el.classList.add('pressed'); };
     const release = e => { e.preventDefault(); keys[keyCode] = false; el.classList.remove('pressed'); };
     el.addEventListener('touchstart',  press,   { passive: false });
     el.addEventListener('touchend',    release, { passive: false });
     el.addEventListener('touchcancel', release);
-    // Support souris (desktop debug)
-    el.addEventListener('mousedown', press);
-    el.addEventListener('mouseup',   release);
-    el.addEventListener('mouseleave',release);
+    el.addEventListener('mousedown',  press);
+    el.addEventListener('mouseup',    release);
+    el.addEventListener('mouseleave', release);
   }
 
-  bindKey(btnL, 'ArrowLeft');
-  bindKey(btnR, 'ArrowRight');
-  bindKey(btnF, 'Space');
-  bindKey(btnS, 'ShiftLeft');
+  function bindPause(el) {
+    if (!el) return;
+    const toggle = e => {
+      e.preventDefault();
+      if      (G.state === 'playing') pauseGame();
+      else if (G.state === 'paused')  resumeGame();
+    };
+    el.addEventListener('touchstart', toggle, { passive: false });
+    el.addEventListener('mousedown',  toggle);
+  }
 
-  // Pause : toggle entre pause et reprise
-  btnP.addEventListener('touchstart', e => {
-    e.preventDefault();
-    if      (G.state === 'playing') pauseGame();
-    else if (G.state === 'paused')  resumeGame();
-  }, { passive: false });
-  btnP.addEventListener('mousedown', () => {
-    if      (G.state === 'playing') pauseGame();
-    else if (G.state === 'paused')  resumeGame();
-  });
+  // Portrait bar buttons
+  bindKey(document.getElementById('btnLeft'),    'ArrowLeft');
+  bindKey(document.getElementById('btnRight'),   'ArrowRight');
+  bindKey(document.getElementById('btnFire'),    'Space');
+  bindKey(document.getElementById('btnSpecial'), 'ShiftLeft');
+  bindPause(document.getElementById('btnPause'));
+
+  // Landscape panel buttons
+  bindKey(document.getElementById('btnLeftL'),    'ArrowLeft');
+  bindKey(document.getElementById('btnRightL'),   'ArrowRight');
+  bindKey(document.getElementById('btnFireR'),    'Space');
+  bindKey(document.getElementById('btnSpecialR'), 'ShiftLeft');
+  bindPause(document.getElementById('btnPauseL'));
 }
 setupTouch();
 
@@ -1554,26 +1701,67 @@ function drawMenuBg() {
 // ── INIT ──
 document.getElementById('navHiScore').textContent = String(G.hiScore).padStart(5, '0');
 
-// Responsive canvas — s'adapte à la largeur ET à la hauteur disponible
+// Detect real touch device
+function isTouchDevice() {
+  return navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
+}
+
+// Resize canvas to fit available space, accounting for layout
 function resizeCanvas() {
-  const isMobile   = window.innerWidth <= 768;
-  const sidePad    = isMobile ? 16 : 40;
-  const hudH       = 54;   // HUD bar
-  const ctrlH      = isMobile ? 86 : 0;  // touch controls
-  const navH       = 56;   // navbar
-  const gapH       = isMobile ? 16 : 32; // gaps
+  const touch     = isTouchDevice();
+  const landscape = window.innerWidth > window.innerHeight;
+  const W = window.innerWidth, H = window.innerHeight;
+  let maxW;
 
-  const maxByWidth  = Math.min(720, window.innerWidth  - sidePad * 2);
-  const maxByHeight = (window.innerHeight - navH - hudH - ctrlH - gapH) * (720 / 520);
-  const maxW        = Math.floor(Math.min(maxByWidth, maxByHeight));
+  if (touch && landscape && H <= 540) {
+    // === LANDSCAPE MOBILE ===
+    // Left panel (86px) + canvas + right panel (86px)
+    // Slim nav (40px) + compact HUD (~32px) + gap (6px)
+    const panelW = 86 * 2;
+    const navH   = 40, hudH = 32, gapH = 6;
+    const availW = W - panelW;
+    const availH = H - navH - hudH - gapH;
+    // Constrain by both width and height (maintain 720:520 ratio)
+    const byW = availW;
+    const byH = availH * (720 / 520);
+    maxW = Math.floor(Math.min(byW, byH));
+  } else if (touch && !landscape) {
+    // === PORTRAIT MOBILE ===
+    // Nav (56) + HUD (50) + touch controls (82) + gaps (20)
+    const navH = 56, hudH = 50, ctrlH = 82, gapH = 20;
+    const byW = Math.min(720, W - 16 * 2);
+    const byH = (H - navH - hudH - ctrlH - gapH) * (720 / 520);
+    maxW = Math.floor(Math.min(byW, byH));
+  } else {
+    // === DESKTOP ===
+    maxW = Math.min(720, W - 80);
+  }
 
+  maxW = Math.max(200, maxW);
   canvas.style.width  = maxW + 'px';
   canvas.style.height = Math.floor(maxW * (520 / 720)) + 'px';
 }
-window.addEventListener('resize', resizeCanvas);
-// Recalcule aussi après l'orientation change sur mobile
-window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 200));
-resizeCanvas();
+
+// Show/hide portrait overlay & update layout on orientation change
+function updateOrientation() {
+  const touch    = isTouchDevice();
+  const portrait = window.innerWidth < window.innerHeight;
+  const overlay  = document.getElementById('portraitOverlay');
+
+  if (touch && portrait && window.innerWidth < 768) {
+    // Show rotate overlay on portrait phones (not tablets)
+    overlay.classList.add('active');
+    if (G.state === 'playing') pauseGame();
+  } else {
+    overlay.classList.remove('active');
+  }
+
+  resizeCanvas();
+}
+
+window.addEventListener('resize', updateOrientation);
+window.addEventListener('orientationchange', () => setTimeout(updateOrientation, 250));
+updateOrientation();
 
 // Start ambient loop
 drawMenuBg();
