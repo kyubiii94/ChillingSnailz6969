@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "pip install --break-system-packages -r requirements.txt",
-  "buildCommand": "python manage.py migrate --noinput --settings=config.settings.vercel && python manage.py collectstatic --noinput --settings=config.settings.vercel",
+  "buildCommand": "python manage.py migrate --noinput --settings=config.settings.vercel && python manage.py createcachetable --settings=config.settings.vercel && python manage.py collectstatic --noinput --settings=config.settings.vercel",
   "routes": [
     { "src": "/(.*)", "dest": "api/wsgi.py" }
   ]

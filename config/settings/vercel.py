@@ -31,6 +31,14 @@ DATABASES = {
     }
 }
 
+# Cache partagé (requis par django_ratelimit) — database cache avec SQLite
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "vercel_cache_table",
+    }
+}
+
 # WhiteNoise pour servir les fichiers statiques en production
 MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")  # noqa: F405
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
