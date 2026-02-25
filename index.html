@@ -1309,6 +1309,87 @@ footer {
   width: 1px; height: 60px; background: var(--border); flex-shrink: 0;
 }
 
+/* ===========================
+   RESPONSIVE — GAMING & LATE COMPONENTS
+   (placé après les définitions pour éviter la cascade)
+=========================== */
+@media(max-width:960px){
+  /* Override forcé : gaming bento défini après le premier bloc responsive */
+  .gaming-bento { grid-template-columns: 1fr !important; }
+  .bento-console { grid-row: auto !important; }
+
+  /* Roadmap timeline scroll horizontal → pile verticale */
+  .rm-timeline { flex-direction: column; overflow-x: visible; }
+  .rm-card { min-width: 0; max-width: 100%; flex: none; width: 100%; }
+  .rm-connector { display: none; }
+}
+
+@media(max-width:640px){
+  /* ── Bento layout ── */
+  .gaming-bento { gap: 12px; }
+  .bento-card { padding: 16px 14px; }
+  .bento-label {
+    font-size: 6px; letter-spacing: 1px;
+    white-space: normal; word-break: break-word;
+    margin-bottom: 14px; line-height: 1.8;
+  }
+
+  /* ── Console top bar ── */
+  .console-top-bar span:not(.cbar-dot) {
+    font-size: 6px !important; letter-spacing: 0 !important;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    max-width: 90px;
+  }
+
+  /* ── Écran console ── */
+  .console-screen-big { min-height: 160px; }
+  .pixel-game-title {
+    font-size: 12px !important; letter-spacing: 2px !important;
+    margin-bottom: 8px !important;
+  }
+  .pixel-game-score { font-size: 7px; letter-spacing: 1px; margin-bottom: 4px; }
+  .pixel-game-lives { font-size: 9px; margin-bottom: 10px; }
+  .pixel-invaders {
+    grid-template-columns: repeat(6, 18px) !important;
+    gap: 3px !important; margin-bottom: 10px;
+  }
+  .invader-cell { width: 18px !important; height: 14px !important; font-size: 10px !important; line-height: 14px !important; }
+  .pixel-player { font-size: 16px; margin-bottom: 4px; }
+
+  /* ── Contrôles console ── */
+  .console-controls { padding: 8px 10px; gap: 10px; }
+  .dpad-btn { width: 22px; height: 22px; font-size: 7px; }
+  .action-btn { width: 26px; height: 26px; font-size: 8px; }
+  .start-btn { font-size: 6px; padding: 0 7px; }
+
+  /* ── Stats évolution ── */
+  .evo-bar-wrap { gap: 10px; }
+  .evo-stat-name { width: 56px; font-size: 6px; letter-spacing: 0; }
+  .evo-stat-val { font-size: 7px; width: 20px; }
+  .evo-level-num { font-size: 24px; }
+
+  /* ── Lignes de jeux ── */
+  .games-list-compact { gap: 8px; }
+  .game-row { gap: 8px; padding: 9px 10px; }
+  .game-row-icon { font-size: 16px; }
+  .game-row-name { font-size: 6px; letter-spacing: 0.5px; }
+  .game-row-desc { font-size: 10px; }
+  .game-badge { font-size: 5px; padding: 3px 5px; flex-shrink: 0; }
+
+  /* ── Token ── */
+  .token-coin { width: 52px; height: 52px; font-size: 24px; }
+  .token-name { font-size: 18px; }
+  .token-desc { font-size: 11px; }
+  .token-stats-row { gap: 14px; }
+
+  /* ── Roadmap ── */
+  .rm-numbers { flex-wrap: wrap; padding: 20px 16px; gap: 0; }
+  .rm-kpi { width: 50%; min-width: 0; padding: 10px 0; }
+  .rm-kpi-sep { display: none; }
+  .rm-kpi-val { font-size: 28px; }
+  .rm-kpi-lbl { font-size: 6px; }
+}
+
 </style>
 </head>
 <body>
