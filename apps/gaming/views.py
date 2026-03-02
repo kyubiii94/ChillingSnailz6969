@@ -10,6 +10,14 @@ GAMES = [
         "available": True,
     },
     {
+        "name": "Snailz Munch",
+        "slug": "munch",
+        "url_name": "gaming:munch",
+        "tag": "ARCADE · SNAKE",
+        "desc": "Guide ton escargot pour avaler un maximum de laitues. Attention aux murs et a ta propre queue !",
+        "available": True,
+    },
+    {
         "name": "Shell Racer",
         "slug": "racer",
         "tag": "RACING · VITESSE",
@@ -39,3 +47,7 @@ def index(request):
 
 def invaders(request):
     return render(request, "gaming/invaders.html")
+
+
+def munch(request):
+    return render(request, "gaming/munch.html")
