@@ -228,4 +228,7 @@ LOGGING = {
     },
 }
 
-os.makedirs(BASE_DIR / "logs", exist_ok=True)
+try:
+    os.makedirs(BASE_DIR / "logs", exist_ok=True)
+except OSError:
+    pass  # Filesystem en lecture seule (ex: Vercel Lambda)
