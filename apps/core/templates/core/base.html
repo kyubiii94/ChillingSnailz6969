@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}CHILLING SNAILZ — Lettuce Island{% endblock %}</title>
+<link rel="icon" type="image/png" href="{% static 'core/img/favicon.png' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'core/css/main.css' %}">
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-follower"></div>
+
+<nav>
+  <a href="{% url 'core:home' %}" class="nav-logo">
+    <img src="{% static 'core/img/img_b1cd1032.png' %}" alt="CS Logo">
+    <span class="nav-brand">CHILLING <span>SNAILZ</span></span>
+  </a>
+
+  <button class="nav-toggle" id="navToggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="nav-center" id="navMenu">
+    <a href="{% url 'core:home' %}#factions" class="nav-link">FACTIONS</a>
+    <a href="{% url 'nft:collection' %}" class="nav-link">COLLECTION</a>
+    <a href="{% url 'gaming:invaders' %}" class="nav-link">GAMING</a>
+    <a href="{% url 'core:home' %}#roadmap" class="nav-link">ROADMAP</a>
+    <a href="{% url 'core:home' %}#promo" class="nav-link">UNIVERSE</a>
+    <a href="{% url 'core:home' %}#mint" class="nav-link">MINT</a>
+  </div>
+
+  <div class="nav-right">
+    {% if user.is_authenticated %}
+    <a href="{% url 'accounts:profile' %}" class="btn-wallet connected" style="text-decoration:none">
+      <span class="wallet-dot" style="background:var(--chill);box-shadow:0 0 6px var(--chill);animation:blink 1.5s infinite"></span>
+      <span class="btn-text">{{ user.username|truncatechars:12 }}</span>
+    </a>
+    {% else %}
+    <a href="{% url 'account_login' %}" class="btn-wallet" style="text-decoration:none">
+      <span class="wallet-dot"></span>
+      <span class="btn-text">CONNEXION</span>
+    </a>
+    {% endif %}
+  </div>
+</nav>
+
+{% block content %}{% endblock %}
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <img src="{% static 'core/img/img_b1cd1032.png' %}" alt="Logo" class="footer-logo">
+      <span class="footer-brand-name">CHILLING SNAILZ</span>
+      <p class="footer-tagline">Collection NFT pixel art de 6 969 escargots uniques sur Lettuce Island — un ecosysteme gaming blockchain-native sur Ethereum.</p>
+      <div class="socials">
+        <a href="#" class="social" title="Twitter">&#x1F426;</a>
+        <a href="#" class="social" title="Discord">&#x1F4AC;</a>
+        <a href="#" class="social" title="OpenSea">&#x1F30A;</a>
+        <a href="#" class="social" title="Instagram">&#x1F4F8;</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>COLLECTION</h4>
+      <ul>
+        <li><a href="#">OpenSea</a></li>
+        <li><a href="#">Rarity Rankings</a></li>
+        <li><a href="#">Trait Explorer</a></li>
+        <li><a href="#">Smart Contract</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>PROJET</h4>
+      <ul>
+        <li><a href="#">A propos</a></li>
+        <li><a href="#">L'equipe</a></li>
+        <li><a href="{% url 'core:home' %}#roadmap">Roadmap</a></li>
+        <li><a href="#">Whitepaper</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>LEGAL</h4>
+      <ul>
+        <li><a href="#">CGU</a></li>
+        <li><a href="#">Confidentialite</a></li>
+        <li><a href="#">Licence IP</a></li>
+        <li><a href="#">Audit</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">&copy; 2025 CHILLING SNAILZ. TOUS DROITS RESERVES. ERC-721 SUR ETHEREUM.</span>
+    <span class="footer-eth"><span class="eth-live"></span>ETHEREUM MAINNET</span>
+  </div>
+</footer>
+
+<script src="{% static 'core/js/cursor.js' %}"></script>
+<script src="{% static 'core/js/nav.js' %}"></script>
+<script src="{% static 'core/js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

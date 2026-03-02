@@ -1,0 +1,11 @@
+{% load static %}
+<div class="faction-card reveal">
+  <div class="faction-img">
+    <img src="{% static 'core/img/'|add:img %}" alt="{{ name }}">
+  </div>
+  <div class="faction-body">
+    <img src="{% static 'core/img/'|add:name_img %}" alt="{{ name }}" class="faction-name-img">
+    <p class="faction-desc">{{ desc }}</p>
+    <span class="faction-tag">{{ tag }}</span>
+  </div>
+</div>
