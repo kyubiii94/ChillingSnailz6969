@@ -23,11 +23,12 @@ ALLOWED_HOSTS = [
     "chilling-snailz6969.vercel.app",
 ]
 
-# SQLite pour Vercel (pas de DB externe par défaut)
+# SQLite dans /tmp — seul répertoire inscriptible sur Vercel Lambda
+# (le wsgi.py copie le fichier pré-migré depuis le projet au démarrage)
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",  # noqa: F405
+        "NAME": "/tmp/db.sqlite3",
     }
 }
 
@@ -55,3 +56,28 @@ SILENCED_SYSTEM_CHECKS = [
     "django_ratelimit.E003",
     "django_ratelimit.W001",
 ]
+
+# Logging sans handler fichier : le filesystem est read-only sur Lambda,
+# RotatingFileHandler ferait crasher la fonction au démarrage.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "json": {
+            "()": "structlog.stdlib.ProcessorFormatter",
+            "processor": "structlog.dev.ConsoleRenderer",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "json",
+        },
+    },
+    "root": {"handlers": ["console"], "level": "INFO"},
+    "loggers": {
+        "django": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "django.security": {"handlers": ["console"], "level": "WARNING", "propagate": False},
+        "apps": {"handlers": ["console"], "level": "INFO", "propagate": False},
+    },
+}
