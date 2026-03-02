@@ -1158,10 +1158,10 @@ const keys = {};
 window.addEventListener('keydown', e => {
   keys[e.code] = true;
   if (G.state === 'playing') {
-    if ((e.code === 'ArrowLeft'  || e.code === 'KeyA') && dir.x === 0) nextDir = {x:-1, y:0};
-    if ((e.code === 'ArrowRight' || e.code === 'KeyD') && dir.x === 0) nextDir = {x:1,  y:0};
-    if ((e.code === 'ArrowUp'    || e.code === 'KeyW') && dir.y === 0) nextDir = {x:0, y:-1};
-    if ((e.code === 'ArrowDown'  || e.code === 'KeyS') && dir.y === 0) nextDir = {x:0,  y:1};
+    if ((e.code === 'ArrowLeft'  || e.code === 'KeyA') && nextDir.x === 0) nextDir = {x:-1, y:0};
+    if ((e.code === 'ArrowRight' || e.code === 'KeyD') && nextDir.x === 0) nextDir = {x:1,  y:0};
+    if ((e.code === 'ArrowUp'    || e.code === 'KeyW') && nextDir.y === 0) nextDir = {x:0, y:-1};
+    if ((e.code === 'ArrowDown'  || e.code === 'KeyS') && nextDir.y === 0) nextDir = {x:0,  y:1};
     if (e.code === 'KeyP') pauseGame();
     if (e.code === 'Escape') pauseGame();
   } else if (G.state === 'paused') {
@@ -1184,11 +1184,11 @@ canvas.addEventListener('touchend', e => {
   if (Math.abs(dx) < 18 && Math.abs(dy) < 18) return;
   if (G.state !== 'playing') return;
   if (Math.abs(dx) > Math.abs(dy)) {
-    if (dx > 0 && dir.x === 0) nextDir = {x:1, y:0};
-    if (dx < 0 && dir.x === 0) nextDir = {x:-1, y:0};
+    if (dx > 0 && nextDir.x === 0) nextDir = {x:1, y:0};
+    if (dx < 0 && nextDir.x === 0) nextDir = {x:-1, y:0};
   } else {
-    if (dy > 0 && dir.y === 0) nextDir = {x:0, y:1};
-    if (dy < 0 && dir.y === 0) nextDir = {x:0, y:-1};
+    if (dy > 0 && nextDir.y === 0) nextDir = {x:0, y:1};
+    if (dy < 0 && nextDir.y === 0) nextDir = {x:0, y:-1};
   }
 }, {passive: true});
 
@@ -1199,8 +1199,8 @@ function setupTouch() {
     function press(e) {
       e.preventDefault();
       if (G.state !== 'playing') return;
-      if (dx !== 0 && dir.x === 0) nextDir = {x:dx, y:0};
-      if (dy !== 0 && dir.y === 0) nextDir = {x:0, y:dy};
+      if (dx !== 0 && nextDir.x === 0) nextDir = {x:dx, y:0};
+      if (dy !== 0 && nextDir.y === 0) nextDir = {x:0, y:dy};
       el.classList.add('pressed');
     }
     function release(e) { e.preventDefault(); el.classList.remove('pressed'); }
@@ -1271,16 +1271,8 @@ function resizeCanvas() {
 }
 
 function updateOrientation() {
-  const touch    = isTouchDevice();
-  const portrait = window.innerWidth < window.innerHeight;
-  const overlay  = document.getElementById('portraitOverlay');
-
-  if (touch && portrait && window.innerWidth < 768) {
-    overlay.classList.add('active');
-    if (G.state === 'playing') pauseGame();
-  } else {
-    overlay.classList.remove('active');
-  }
+  const overlay = document.getElementById('portraitOverlay');
+  overlay.classList.remove('active');
   resizeCanvas();
 }
 

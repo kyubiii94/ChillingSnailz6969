@@ -1744,18 +1744,8 @@ function resizeCanvas() {
 
 // Show/hide portrait overlay & update layout on orientation change
 function updateOrientation() {
-  const touch    = isTouchDevice();
-  const portrait = window.innerWidth < window.innerHeight;
-  const overlay  = document.getElementById('portraitOverlay');
-
-  if (touch && portrait && window.innerWidth < 768) {
-    // Show rotate overlay on portrait phones (not tablets)
-    overlay.classList.add('active');
-    if (G.state === 'playing') pauseGame();
-  } else {
-    overlay.classList.remove('active');
-  }
-
+  const overlay = document.getElementById('portraitOverlay');
+  overlay.classList.remove('active');
   resizeCanvas();
 }
 
