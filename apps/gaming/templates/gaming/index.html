@@ -1,0 +1,88 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Gaming — CHILLING SNAILZ{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:100px;min-height:100vh;background:var(--deep)">
+  <div class="container">
+
+    <div class="section-head center reveal">
+      <p class="tag">LETTUCE ISLAND ARCADE</p>
+      <h2 class="section-title">Choisis ton <span style="color:var(--aqua)">Jeu.</span></h2>
+      <p class="section-desc">La plateforme gaming de Lettuce Island. Joue, grimpe les leaderboards et gagne des <strong>$NAILZ tokens</strong>.</p>
+    </div>
+
+    <div class="gaming-grid reveal">
+      {% for game in games %}
+      <div class="game-card {% if not game.available %}game-card--soon{% endif %}">
+        <div class="game-card-inner">
+          <p class="tag" style="margin-bottom:12px">{{ game.tag }}</p>
+          <h3 class="game-card-title">{{ game.name }}</h3>
+          <p class="game-card-desc">{{ game.desc }}</p>
+          {% if game.available %}
+          <a href="{% url game.url_name %}" class="btn-primary" style="margin-top:auto;display:inline-block">JOUER</a>
+          {% else %}
+          <span class="game-card-soon">BIENTOT</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+<style>
+.gaming-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 48px;
+}
+.game-card {
+  border: 1px solid var(--border);
+  background: var(--void);
+  border-radius: 4px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color .25s, box-shadow .25s;
+}
+.game-card:hover {
+  border-color: var(--aqua);
+  box-shadow: 0 0 24px rgba(0,212,255,.12);
+}
+.game-card--soon {
+  opacity: .5;
+}
+.game-card-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.game-card-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: var(--fg);
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+.game-card-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+  flex: 1;
+  margin-bottom: 24px;
+}
+.game-card-soon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  display: inline-block;
+  letter-spacing: .1em;
+}
+</style>
+{% endblock %}
