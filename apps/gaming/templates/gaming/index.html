@@ -15,18 +15,26 @@
 
     <div class="gaming-grid reveal">
       {% for game in games %}
-      <div class="game-card {% if not game.available %}game-card--soon{% endif %}">
+      {% if game.available %}
+      <a href="{% url game.url_name %}" class="game-card game-card--available">
+      {% else %}
+      <div class="game-card game-card--soon">
+      {% endif %}
         <div class="game-card-inner">
           <p class="tag" style="margin-bottom:12px">{{ game.tag }}</p>
           <h3 class="game-card-title">{{ game.name }}</h3>
           <p class="game-card-desc">{{ game.desc }}</p>
           {% if game.available %}
-          <a href="{% url game.url_name %}" class="btn-primary" style="margin-top:auto;display:inline-block">JOUER</a>
+          <span class="game-card-cta">JOUER →</span>
           {% else %}
           <span class="game-card-soon">BIENTOT</span>
           {% endif %}
         </div>
+      {% if game.available %}
+      </a>
+      {% else %}
       </div>
+      {% endif %}
       {% endfor %}
     </div>
 
@@ -83,6 +91,21 @@
   padding: 8px 16px;
   display: inline-block;
   letter-spacing: .1em;
+}
+.game-card--available {
+  text-decoration: none;
+  cursor: pointer;
+}
+.game-card-cta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--aqua);
+  letter-spacing: .08em;
+  margin-top: auto;
+  transition: letter-spacing .2s;
+}
+.game-card--available:hover .game-card-cta {
+  letter-spacing: .18em;
 }
 </style>
 {% endblock %}
