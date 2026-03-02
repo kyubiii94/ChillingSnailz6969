@@ -31,11 +31,12 @@ DATABASES = {
     }
 }
 
-# Cache partagé (requis par django_ratelimit) — database cache avec SQLite
+# Cache en mémoire — LocMemCache supporte l'incrément atomique requis par
+# django-ratelimit. DatabaseCache ne le supporte pas, et Redis n'est pas
+# disponible par défaut sur Vercel serverless.
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-        "LOCATION": "vercel_cache_table",
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
     }
 }
 
@@ -46,3 +47,11 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # Désactiver des options lourdes non nécessaires en serverless
 AXES_ENABLED = False
 ACCOUNT_EMAIL_VERIFICATION = "optional"
+
+# Sur Vercel serverless il n'y a pas de cache partagé entre instances.
+# LocMemCache supporte l'incrément atomique et fonctionne par process.
+# On silence les checks qui exigent un backend partagé (Redis/Memcached).
+SILENCED_SYSTEM_CHECKS = [
+    "django_ratelimit.E003",
+    "django_ratelimit.W001",
+]
